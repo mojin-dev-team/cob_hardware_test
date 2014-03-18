@@ -8,7 +8,7 @@ import unittest
 
 import rospy
 import rostest
-from cob_hardware_test_src.srv import *
+from cob_hardware_test.srv import *
 from sensor_msgs.msg import Joy
 
 def dialog_client(dialog_type, message):
