@@ -19,7 +19,7 @@
     </include>        
 
 	<!-- include test -->
-	<include file="$(find cob_hardware_test)/components/torso.test.xml" />
+	<include file="$(find cob_bringup_test)/components/torso.test.xml" />
 
 </launch>
 
