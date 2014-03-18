@@ -1,0 +1,19 @@
+<package>
+  <description brief="cob_bringup_test">
+
+     cob_bringup_test
+
+  </description>
+  <author>jenkins</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/cob_bringup_test</url>
+
+  <depend package="cob_hardware_test_src"/>
+  <depend package="cob_bringup"/>
+  <depend package="cob_default_robot_config"/>
+  <depend package="cob_teleop" />
+
+</package>
+
+
