@@ -10,6 +10,7 @@
   <url>http://ros.org/wiki/cob_hardware_test</url>
 
   <depend package="rostest"/>
-  <depend package="audio_common_msgs" /> <!-- audio_common -->
+  <depend package="audio_common_msgs" />
+  <depend package="cob_script_server" />
 
 </package>
