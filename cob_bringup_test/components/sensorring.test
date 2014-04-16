@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<launch>
+
+    <!-- start dialog service -->
+    <node pkg="cob_hardware_test_core" type="dialog.py" name="dialog_server"/>
+
+    <!-- launch component or simulation-->
+    <include file="$(find cob_bringup_sim)/launch/robot.launch" if="$(arg sim)" />
+    <include file="$(find cob_default_robot_config)/upload_param.launch" unless="$(arg sim)" />
+    <include file="$(find cob_bringup)/drivers/component_solo.launch" unless="$(arg sim)" >
+        <arg name="driver"    value="head_cob4" />
+        <arg name="component" value="sensorring" />
+    </include>
+
+    <!-- include test -->
+    <include file="$(find cob_bringup_test)/components/component.test.xml" >
+        <arg name="robot" value="$(arg robot)"/>
+        <arg name="component" value="sensorring"/>
+    </include>
+
+</launch>

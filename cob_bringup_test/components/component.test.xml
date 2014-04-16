@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<launch>
+
+    <arg name="component">
+    <arg name="robot">
+
+	<!-- perform test -->
+	<test test-name="test_$(arg component)" pkg="cob_hardware_test" type="component_test.py" name="test_$(arg component)" time-limit="240" >
+	    <rosparam command="load" file="$(find cob_bringup_test)/config/$(arg robot)/$(arg component).yaml" />
+	</test>
+
+
+</launch>

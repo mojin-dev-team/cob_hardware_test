@@ -1,0 +1,5 @@
+component: "sensorring"
+test_target: "front_up"
+default_target: "home"
+wait_time: 10.0
+error_range: 0.1
