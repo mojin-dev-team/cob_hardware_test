@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 import roslib
-roslib.load_manifest('cob_hardware_test')
+roslib.load_manifest('cob_hardware_test_core')
 import sys
 import rospy
 import wx
-from cob_hardware_test.srv import *
+from cob_hardware_test_core.srv import *
 
 def handle_dialog(req):
     if req.type == 1:

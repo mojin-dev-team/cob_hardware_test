@@ -8,7 +8,7 @@ find_package(catkin REQUIRED COMPONENTS message_generation)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
-
+catkin_python_setup()
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -112,11 +112,13 @@ catkin_package(
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
-# install(PROGRAMS
-#   scripts/my_python_script
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+#install(PROGRAMS src/dialog.py src/dialog_client.py 
+#  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}/src
+#)
 
+install(PROGRAMS test/base_test.py test/calibration_test.py test/component_test.py test/hztests test/joy_test.py test/life_test.py test/light_test.py test/sound_test.py test/tactile_test.py test/teleop_test.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}/test
+)
 ## Mark executables and/or libraries for installation
 # install(TARGETS cob_hardware_test_core cob_hardware_test_core_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}

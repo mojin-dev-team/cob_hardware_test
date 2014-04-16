@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import roslib
-roslib.load_manifest('cob_hardware_test')
+roslib.load_manifest('cob_hardware_test_core')
 #from mpmath.functions.functions import fabs
 import sys
 import time
@@ -12,7 +12,7 @@ import rostest
 from trajectory_msgs.msg import *
 from simple_script_server import *
 from pr2_controllers_msgs.msg import *
-from dialog_client import dialog_client
+from dialog_client import *
 
 
 class UnitTest(unittest.TestCase):

@@ -1,6 +1,8 @@
 <?xml version="1.0"?>
 <launch>
 
+    <arg name="sim" default="false"/>
+    <arg name="robot" default="(optenv ROBOT_ENV !!NO_ROBOT_ENV_SET!!)"/>
     <!-- start dialog service -->
     <node pkg="cob_hardware_test_core" type="dialog.py" name="dialog_server"/>
 

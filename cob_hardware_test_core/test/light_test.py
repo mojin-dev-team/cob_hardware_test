@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 import roslib
-roslib.load_manifest('cob_hardware_test')
+roslib.load_manifest('cob_hardware_test_core')
 import sys
 import unittest
 import rospy
 import rostest
 from simple_script_server import *
 from pr2_controllers_msgs.msg import *
-from dialog_client import dialog_client
+from dialog_client import *
 
 class HardwareTest(unittest.TestCase):
     def __init__(self, *args):

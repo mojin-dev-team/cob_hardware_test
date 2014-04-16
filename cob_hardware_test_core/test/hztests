@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import roslib; roslib.load_manifest('cob_hardware_test')
+import roslib; roslib.load_manifest('cob_hardware_test_core')
 
 import sys
 import thread
@@ -51,10 +51,10 @@ class HzTest(unittest.TestCase):
 
     def test_hz(self):
         # Fetch parameters
-        cob_hardware_test = rospy.get_param('cob_hardware_test')   
+        cob_hardware_test_core = rospy.get_param('cob_hardware_test_core')   
         threads = []
         #start threads in loop
-        for k, i in cob_hardware_test.iteritems():
+        for k, i in cob_hardware_test_core.iteritems():
             #self.lock = threading.Lock()
             
             #Reset for each cycle:
