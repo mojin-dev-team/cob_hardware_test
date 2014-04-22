@@ -1,0 +1,23 @@
+<package>
+  <name>cob_hardware_test_core</name>
+  <version>0.1.0</version>
+  <description>This package provides test launch files for testing Care-O-bot hardware.</description>
+
+  <license>LGPL</license>
+
+  <url type="website">http://ros.org/wiki/cob_hardware_test_core</url>
+  <!-- <url type="bugtracker"></url> -->
+
+  <maintainer email="nhg@ipa.fhg.de">Nadia Hammoudeh</maintainer>
+  <author email="fmw@ipa.fhg.de">Florian Weisshardt</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+ 
+  <build_depend>roslaunch</build_depend>
+ 
+  <run_depend>cob_script_server</run_depend>
+
+  <export>
+
+  </export>
+</package>

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import roslib
-roslib.load_manifest('cob_hardware_test')
+roslib.load_manifest('cob_hardware_test_core')
 import sys
 import time
 import unittest
@@ -8,7 +8,7 @@ import rospy
 import rostest
 from simple_script_server import *
 import schunk_sdh.msg
-from dialog_client import dialog_client
+from dialog_client import *
 
 
 class UnitTest(unittest.TestCase):

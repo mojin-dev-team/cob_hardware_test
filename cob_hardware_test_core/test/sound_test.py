@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import roslib
-roslib.load_manifest('cob_hardware_test')
+roslib.load_manifest('cob_hardware_test_core')
 
 import sys
 import unittest
@@ -10,7 +10,7 @@ from audio_common_msgs.msg import AudioData
 from std_msgs.msg import String
 from simple_script_server import *
 from pr2_controllers_msgs.msg import *
-from dialog_client import dialog_client
+from dialog_client import *
 
 
 class HardwareTest(unittest.TestCase):
