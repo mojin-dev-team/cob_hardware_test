@@ -1,0 +1,5 @@
+component: "arm_left"
+test_target: "front"
+default_target: "home"
+wait_time: 10.0
+error_range: 0.1

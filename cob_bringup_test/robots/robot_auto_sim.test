@@ -1,9 +1,15 @@
 <?xml version="1.0"?>
 <launch>
 
+    <arg name="robot" default="$(optenv ROBOT !!NO_ROBOT_SET!!)"/>
+    
 	<!-- bringup robot -->
-	<include file="$(find cob_bringup_sim)/launch/robot.launch" />
+	<include file="$(find cob_bringup_sim)/launch/robot.launch"  >
+		<arg name="robot" value="$(arg robot)" />
+	</include>
 	<!-- include auto test -->
-	<include file="$(find cob_hardware_test)/robots/$(env ROBOT)_auto.test.xml" />
+	<include file="$(find cob_bringup_test)/robots/$(arg robot)_auto.test.xml"  >
+		<arg name="robot" value="$(arg robot)" />
+	</include>
 
 </launch>

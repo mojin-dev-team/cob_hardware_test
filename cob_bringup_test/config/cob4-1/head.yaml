@@ -1,0 +1,5 @@
+component: "head"
+test_target: "back_twisted"
+default_target: "front"
+wait_time: 10.0
+error_range: 0.1

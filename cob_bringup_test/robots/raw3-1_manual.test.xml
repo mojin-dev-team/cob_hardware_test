@@ -1,13 +1,24 @@
 <?xml version="1.0"?>
 <launch>
 
+	<arg name="robot" default="raw3-1"/>
+	
 	<!-- include manual tests -->
-	<include file="$(find cob_hardware_test)/components/base.test.xml" />
-	<include file="$(find cob_hardware_test)/components/torso.test.xml" />
-	<include file="$(find cob_hardware_test)/components/ur.test.xml" />
-	<include file="$(find cob_hardware_test)/components/light.test.xml" />
-	<include file="$(find cob_hardware_test)/components/joy.test.xml" />
-	<include file="$(find cob_hardware_test)/components/teleop.test.xml" />
-	<!--include file="$(find cob_hardware_test)/components/calibration.test.xml" /-->
+	<include file="$(find cob_bringup_test)/drivers/base.test.xml" >
+	    <arg name="robot" value="$(arg robot)" />
+	</include>
+	<include file="$(find cob_bringup_test)/drivers/component.test.xml" >
+	    <arg name="component" value="torso" />
+	    <arg name="robot" value="$(arg robot)" />
+	</include>
+	<include file="$(find cob_bringup_test)/drivers/component.test.xml" >
+	    <arg name="component" value="arm" />
+	    <arg name="robot" value="$(arg robot)" />
+	</include>
+
+	<include file="$(find cob_bringup_test)/drivers/light.test.xml" />
+	<include file="$(find cob_bringup_test)/drivers/joy.test.xml" />
+	<include file="$(find cob_bringup_test)/drivers/teleop.test.xml" />
+	<!--include file="$(find cob_bringup_test)/drivers/calibration.test.xml" /-->
 
 </launch>

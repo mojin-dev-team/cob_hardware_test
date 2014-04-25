@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<launch>
+
+    <!--arg name="robot" default="$(optenv ROBOT !!NO_ROBOT_SET!!)"/-->
+    
+    <!-- include test -->
+    <test test-name="test_base" pkg="cob_hardware_test_core" type="base_test.py" name="cob_base" time-limit="240" >
+        <rosparam command="load" file="$(find cob_bringup_test)/config/cob3-3/base.yaml" />
+    </test>
+
+</launch>

@@ -1,0 +1,3 @@
+topic: "/base_controller/command_safe"
+min_target_x: 0.05
+min_target_y: 0.05

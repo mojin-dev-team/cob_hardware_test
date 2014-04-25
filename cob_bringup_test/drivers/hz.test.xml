@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<launch>
+
+    <arg name="name"/>
+    <arg name="robot" default="$(optenv ROBOT !!NO_ROBOT_SET!!)"/>
+
+	<!-- perform test -->
+    <test test-name="cob_hardware_test" pkg="cob_hardware_test_core" type="hztests" name="cob_hardware_test" time-limit="500.0" >
+        <rosparam command="load" file="$(find cob_bringup_test)/config/$(arg robot)/$(arg name).yaml" />
+    </test>
+
+</launch>

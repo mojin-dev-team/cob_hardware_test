@@ -1,0 +1,49 @@
+torso_cam3d_left_rgb_camera_info: {  
+  hz: 55.25,
+  hzerror: 54.75,
+  topic: /torso_cam3d_left/rgb/camera_info,
+  test_duration: 2.0,
+  wait_time: 30.0
+}
+torso_cam3d_left_depth_camera_info: {  
+  hz: 55.25,
+  hzerror: 54.75,
+  topic: /torso_cam3d_left/depth/camera_info,
+  test_duration: 2.0,
+  wait_time: 30.0
+}
+torso_cam3d_left_depth_image_raw: {  
+  hz: 55.25,
+  hzerror: 54.75,
+  topic: /torso_cam3d_left/depth/image_raw,
+  test_duration: 2.0,
+  wait_time: 30.0
+}
+torso_cam3d_left_depth_image: {  
+  hz: 55.25,
+  hzerror: 54.75,
+  topic: /torso_cam3d_left/depth/image,
+  test_duration: 2.0,
+  wait_time: 30.0
+}
+torso_cam3d_left_depth_points: {  
+  hz: 55.25,
+  hzerror: 54.75,
+  topic: /torso_cam3d_left/depth/points,
+  test_duration: 2.0,
+  wait_time: 30.0
+}
+torso_cam3d_left_rgb_image_color: {  
+  hz: 55.25,
+  hzerror: 54.75,
+  topic: /torso_cam3d_left/rgb/image_color,
+  test_duration: 2.0,
+  wait_time: 30.0
+}
+torso_cam3d_left_rgb_image_raw: {  
+  hz: 55.25,
+  hzerror: 54.75,
+  topic: /torso_cam3d_left/rgb/image_raw,
+  test_duration: 2.0,
+  wait_time: 30.0
+}

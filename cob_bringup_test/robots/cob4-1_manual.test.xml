@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<launch>
+
+    <arg name="robot" default="cob4-1"/>
+    
+	<!-- include manual tests -->
+	<include file="$(find cob_bringup_test)/drivers/base.test.xml" >
+	    <arg name="robot" value="$(arg robot)" />
+	</include>
+	<include file="$(find cob_bringup_test)/drivers/component.test.xml" >
+	    <arg name="component" value="torso" />
+	    <arg name="robot" value="$(arg robot)" />
+	</include>
+	<include file="$(find cob_bringup_test)/drivers/component.test.xml" >
+	    <arg name="component" value="head" />
+	    <arg name="robot" value="$(arg robot)" />
+	</include>
+	<include file="$(find cob_bringup_test)/drivers/component.test.xml" >
+	    <arg name="component" value="sensorring" />
+	    <arg name="robot" value="$(arg robot)" />
+	</include>
+	<include file="$(find cob_bringup_test)/drivers/component.test.xml" >
+	    <arg name="component" value="arm_right" />
+	    <arg name="robot" value="$(arg robot)" />
+	</include>
+	<include file="$(find cob_bringup_test)/drivers/component.test.xml" >
+	    <arg name="component" value="arm_left" />
+	    <arg name="robot" value="$(arg robot)" />
+	</include>
+
+</launch>

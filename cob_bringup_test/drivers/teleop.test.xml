@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<launch>
+
+	<!-- perform test -->
+    <test test-name="hz_teleop" pkg="cob_hardware_test" type="teleop_test.py" name="hztest_teleop" time-limit="240">
+        <rosparam command="load" file="$(find cob_bringup_test)/config/teleop.yaml" />
+    </test>
+
+</launch>

@@ -1,0 +1,5 @@
+component: "tray"
+test_target: "deliverup"
+default_target: "storetray"
+wait_time: 30.0
+error_range: 0.1
