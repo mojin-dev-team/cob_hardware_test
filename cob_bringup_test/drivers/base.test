@@ -1,14 +1,21 @@
 <?xml version="1.0"?>
 <launch>
 
+    <arg name="robot" default="$(optenv ROBOT !!NO_ROBOT_SET!!)"/>
+
     <!-- start dialog service -->
     <node pkg="cob_hardware_test_core" type="dialog.py" name="dialog_server"/>
-
+    
     <!-- launch component or simulation-->
-    <include file="$(find cob_bringup_sim)/launch/robot.launch" if="$(arg sim)" />
+    <include file="$(find cob_bringup_sim)/launch/robot.launch" if="$(arg sim)" >
+            <arg name="robot" value="$(arg robot)" />
+    </include>
+    
     <include file="$(find cob_bringup)/drivers/base_solo.launch" unless="$(arg sim)" />
-
+    
     <!-- include test -->
-    <include file="$(find cob_bringup_test)/drivers/base.test.xml" unless="$(arg sim)" />
+    <include file="$(find cob_bringup_test)/drivers/base.test.xml"  >
+            <arg name="robot" value="$(arg robot)" />
+    </include>
 
 </launch>
