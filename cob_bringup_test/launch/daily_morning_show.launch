@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<launch>
+
+    <arg name="robot" default="$(optenv ROBOT !!NO_ROBOT_SET!!)"/>
+    <arg name="sim" default="false" />
+    <arg name="cob4-1-t1" value="cob4-1-t1"/>
+
+
+    <!-- start dialog service -->
+    <node pkg="cob_hardware_test_core" type="dialog.py" name="dialog_server"/>
+
+
+    <!-- launch component or simulation-->
+    <include file="$(find cob_bringup_sim)/launch/robot.launch" if="$(arg sim)" >
+        <arg name="robot" value="$(arg robot)" />
+    </include>
+
+    <!-- launch the robot drivers -->
+    <include file="$(find cob_bringup)/robot.launch" unless="$(arg sim)" >
+        <arg name="robot" value="$(arg robot)" />
+    </include>
+
+    <!--<group>
+        <machine name="cob4-1-t1" address="$(arg cob4-1-t1)" env-loader="$(find cob_bringup)/env.sh" default="true"/>
+		
+      <include file="$(find cob_bringup)/drivers/component_solo.launch" unless="$(arg sim)" />
+    </group>-->
+
+
+    <!-- include test -->
+    <node name="morning_show" pkg="cob_hardware_test_core" type="daily_morning_show.py" />
+
+</launch>

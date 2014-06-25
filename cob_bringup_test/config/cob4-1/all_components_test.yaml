@@ -1,0 +1,58 @@
+base: {
+  # Test goals [x,y,theta]
+  test_0: [0, 0, 0],
+  test_1: [1, 0, 0],
+  #test_2: [0, -1, 0],
+  #test_3: [1, -1, 0],
+}
+torso: {
+  test_target: "front_down",
+  default_target: "home",
+  topic: /torso_controller/state,
+  wait_time: 10.0,
+  error_range: 0.1
+}
+head: {
+  test_target: "front_down",
+  default_target: "front",
+  topic: /head_controller/state,
+  wait_time: 10.0,
+  error_range: 0.1
+}
+sensorring: {
+  test_target: "back",
+  default_target: "front",
+  topic: /sensorring_controller/state,
+  wait_time: 10.0,
+  error_range: 0.1
+}
+arm_left: {
+  test_target: "folded",
+  default_target: "home",
+  topic: /arm_left_controller/state,
+  wait_time: 10.0,
+  error_range: 0.1
+}
+arm_right: {
+  test_target: "folded",
+  default_target: "home",
+  topic: /arm_right_controller/state,
+  wait_time: 10.0,
+  error_range: 0.1
+}
+
+
+torso_cam3d_left_rgb_camera_info: {  
+  hz: 55.25,
+  hzerror: 54.75,
+  topic: /torso_cam3d_left/rgb/camera_info,
+  test_duration: 2.0,
+  wait_time: 30.0
+}
+torso_cam3d_left_depth_camera_info: {  
+  hz: 55.25,
+  hzerror: 54.75,
+  topic: /torso_cam3d_left/depth/camera_info,
+  test_duration: 2.0,
+  wait_time: 30.0
+}
