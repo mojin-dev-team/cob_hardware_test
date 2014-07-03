@@ -150,7 +150,7 @@ class DailyMorningShow:
 		self.msg_received = False
 		sub_state_topic = rospy.Subscriber(state_topic, msg_type, cb_function)
 		abort_time = rospy.Time.now() + rospy.Duration(self.wait_time)
-		
+		dialog_client(0, 'rostime: %s\n\nabort_time: %s' %(rospy.get_rostime(), abort_time))
 		while not self.msg_received and rospy.get_rostime() < abort_time:
 			rospy.sleep(0.1)
 			
