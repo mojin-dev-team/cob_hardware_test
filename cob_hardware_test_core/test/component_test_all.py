@@ -60,19 +60,19 @@ class ComponentTestAll:
 		### CHECK PARAMETERS ###
 		# base goals
 		if not rospy.has_param('~base/test_0'):
-			raise NameError('Parameter base/test_0 does not exist on ROS Parameter Server. At least two goals must be set!')
+			raise NameError('Parameter base/test_0 does not exist on ROS Parameter Server. At least two goals (test_0 and test_1) must be set!')
 		if not rospy.has_param('~base/test_1'):
-			raise NameError('Parameter base/test_1 does not exist on ROS Parameter Server. At least two goals must be set!')
-		# actuator goals
+			raise NameError('Parameter base/test_1 does not exist on ROS Parameter Server. At least two goals (test_0 and test_1) must be set!')
+		# actuator parameters
 		for component in self.actuators:
 			if not rospy.has_param('~%s/default_target' %(component[0])):
 				raise NameError('Parameter %s/default_target does not exist on ROS Parameter Server' %(component[0]))
 			if not rospy.has_param('~%s/test_target' %(component[0])):
 				raise NameError('Parameter %s/test_target does not exist on ROS Parameter Server' %(component[0]))
-		# topics
-		for topic in self.actuators:
-			if not rospy.has_param('~%s/topic' %(topic[0])):
+			if not rospy.has_param('~%s/topic' %(component[0])):
 				raise NameError('Parameter %s/topic does not exist on ROS Parameter Server' %(component[0]))
+			if not rospy.has_param('~%s/error_range' %(component[0])):
+				raise NameError('Parameter %s/error_range does not exist on ROS Parameter Server' %(component[0]))
 		########################
 		
 		
@@ -81,7 +81,7 @@ class ComponentTestAll:
 		for component in self.actuators:
 			self.init_components(component[0])
 		dialog_client(0, 'Succesfully initialized all components!')
-		self.move_base()
+		#self.move_base()
 		for component in self.actuators:
 			self.move_component(component[0])
 	
@@ -171,33 +171,63 @@ class ComponentTestAll:
 		move_handle = self.sss.move(component, test_pos)
 		if move_handle.get_state() != 3:
 			raise NameError('Could not move component %s to target position. errorCode: %s' %(component, move_handle.get_error_code()))
-		self.check_target_reached(test_pos)
+		self.check_target_reached(test_pos, component)
 
 		# Move back to home position
 		move_handle = self.sss.move(component, default_pos)
 		if move_handle.get_state() != 3:
 			raise NameError('Could not move component %s back to home position. errorCode: %s' %(component, move_handle.get_error_code()))
-		self.check_target_reached(default_pos)
+		self.check_target_reached(default_pos, component)
 		
 		sub_position.unregister() # Unsubscribe from the state topic
 
-	## Check the difference between the actual position and commanded position
-	def check_target_reached(self, target_pos):
-		actual_pos = self.actual_pos
+	## Check the difference between actual position and the command position
+	def check_target_reached(self, target, component):
+		target_pos = rospy.get_param("/script_server/" + component + "/" + target)
+		target_pos = target_pos[len(target_pos) - 1]
+		actual_pos = self.actual_position
+		
 		# check if the target position is really reached
 		print "actual_pos = ", actual_pos
-		print "traj_endpoint = ", target_pos
+		print "target_pos = ", target_pos
+		dialog_client(0, '%s \n\n%s' %(target_pos, actual_pos))
 		for i in range(len(target_pos)):
-			self.assert_(((math.fabs(target_pos[i] - actual_pos[i])) < self.error_range), "Target position out of error_range")
+			if math.fabs(target_pos[i] - actual_pos[i]) > rospy.get_param('~%s/error_range' %(component)):
+				raise NameError('Target position out of error range! \n\nTarget_position: %s \nActual_position: %s \nError_range: %s' %(target_pos, actual_pos, self.error_range))
 		
 		
 		
 	def callback_position(self, msg):
-		self.actual_pos = msg.actual.positions
+		self.actual_position = msg.actual.positions
 
 	def callback_state(self, msg):
 		self.message_received = True
 		
+		
+#################################
+	def cb_em_stop(self, msg):
+		self.em_stop_pressed = msg.emergency_button_stop
+		self.em_msg_received = True
+		
+	def cb_actuator(self, msg):
+		self.actuator_msg = msg.actual.positions
+		self.msg_received = True
+
+	def cb_scanner(self, msg):
+		self.scanner_msg = msg.ranges
+		self.msg_received = True
+
+	def cb_point_cloud(self, msg):
+		self.point_cloud_msg = msg.fields
+		self.msg_received = True
+
+	def cb_camera(self, msg):
+		self.camera_msg = msg.data
+		self.msg_received = True
+#################################	
+
+
+
 if __name__ == "__main__":
 	try:
 		TEST = ComponentTestAll()

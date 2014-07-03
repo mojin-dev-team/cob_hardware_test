@@ -7,10 +7,14 @@ import rospy
 import numpy as np
 import collections
 
+## MESSAGES
 from trajectory_msgs.msg import *
 from sensor_msgs.msg import *
-from simple_script_server import *
+from cob_relayboard.msg import *
+from diagnostic_msgs.msg import *
 from pr2_controllers_msgs.msg import *
+
+from simple_script_server import *
 from dialog_client import *
 
 
@@ -22,43 +26,54 @@ class DailyMorningShow:
 		### PARAMETERS
 		self.max_init_tries = 1		# maximum initialization tries for each component
 		self.wait_time = 1		# waiting time (in seconds) before trying initialization again
+		self.wait_time_recover = 1
 		###
 
 		self.sss = simple_script_server()	
 			
-		self.message_received = False
+		self.msg_received = False
 		self.all_inits_successful = True
 		
-		self.scan_msg = LaserScan
-		self.kinect_msg = PointCloud2
-		self.image_msg = Image
-		self.actuator_msg = JointTrajectoryControllerState
+		self.scan_msg_type = LaserScan
+		self.point_cloud_msg_type = PointCloud2
+		self.image_msg_type = Image
+		self.actuator_msg_type = JointTrajectoryControllerState
 
-		dict = (('init_state','NULL'), ('init_count','NULL'), ('launch_manual','NULL'), ('move_to_test','NULL'), ('move_to_home','NULL'),('recover','NULL'))
-		dict = collections.OrderedDict(dict)
+		self.dict = (('init_state','NULL'), 
+				('init_count','NULL'), 
+				('launch_manual','NULL'), 
+				('move_to_test','NULL'), 
+				('move_to_home','NULL'), 
+				('recover','NULL'), 
+				('',''),
+				('diag_init_state',''), 
+				('diag_launch_manual',''), 
+				('diag_move_to_test',''), 
+				('diag_move_to_home',''), 
+				('diag_recover',''))
+		dict = collections.OrderedDict(self.dict)
 		
-		# Uncomment for the real robot:
-		#self.actuators = [["torso","home","front_down",dict.copy()],
-					#["head","home","front_down",dict.copy()],
-					#["sensorring","front","back",dict.copy()],
-					#["arm_left","home","front",dict.copy()],
-					#["arm_right","home","front",dict.copy()]]
-		
-		# Uncomment for simulation:
-		self.actuators = [["torso","home","front_down",dict.copy()],
-						["head","home","front_down",dict.copy()],
-						["sensorring","front","back",dict.copy()],
-						["arm_left","home","folded",dict.copy()],
-						["arm_right","home","folded",dict.copy()]]
+		if not rospy.get_param('~sim'):
+			self.actuators = [["torso","home","home",dict.copy()],
+							  ["head","home","front_down",dict.copy()],
+							  ["sensorring","front","back",dict.copy()],
+							  ["arm_left","home","front",dict.copy()],
+							  ["arm_right","home","front",dict.copy()]]
+		else:
+			self.actuators = [["torso","home","front_down",dict.copy()],
+							  ["head","home","front_down",dict.copy()],
+							  ["sensorring","front","back",dict.copy()],
+							  ["arm_left","home","folded",dict.copy()],
+							  ["arm_right","home","folded",dict.copy()]]
 		
 		
 		self.scanners = [["scan_front","front","NULL"],
-						["scan_left","left","NULL"],
-						["scan_right","right","NULL"]]
+						 ["scan_left","left","NULL"],
+						 ["scan_right","right","NULL"]]
 		
-		self.kinects = [["kinect_left","torso_cam3d_left","NULL"],
-						["kinect_right","torso_cam3d_right","NULL"],
-						["kinect_down","cam3d_down","NULL"]]
+		self.point_clouds = [["point_cloud_left","torso_cam3d_left","NULL"],
+							 ["point_cloud_right","torso_cam3d_right","NULL"],
+							 ["point_cloud_down","cam3d_down","NULL"]]
 				
 		self.cameras = [["cam_left","torso_cam3d_left","NULL"],
 						["cam_left_flip","torso_cam3d_left/flip","NULL"],
@@ -70,6 +85,8 @@ class DailyMorningShow:
 
 	def run(self):
 		# Run the test
+		while self.em_stop():
+			dialog_client(0, 'Release EM-stop and press ''OK''')
 		self.init_components()
 		if not self.all_inits_successful:
 			self.manually_launch_component()
@@ -77,12 +94,26 @@ class DailyMorningShow:
 		self.recover_components()
 		
 		self.check_scanners()
-		self.check_kinects()
+		self.check_point_clouds()
 		self.check_images()
 		
 		self.print_results()
 
-
+	
+	def em_stop(self):
+		
+		self.em_msg_received = False
+		sub_em_stop = rospy.Subscriber("/emergency_stop_state", EmergencyStopState, self.cb_em_stop)
+		
+		abort_time = rospy.Time.now() + rospy.Duration(self.wait_time)
+		while not self.em_msg_received and rospy.get_rostime() < abort_time:
+			rospy.sleep(0.1)
+		rospy.sleep(1.0)
+		sub_em_stop.unregister()
+		if self.em_stop_pressed:
+			return True
+		return False
+	
 
 	def init_components(self):
 		for component in self.actuators:
@@ -91,7 +122,7 @@ class DailyMorningShow:
 			while not init_complete:
 				init_handle = self.sss.init(component[0])
 				init_tries_count += 1
-				if self.check_msg("/" + component[0] + "_controller/state", self.actuator_msg):
+				if self.check_msg("/" + component[0] + "_controller/state", self.actuator_msg_type, self.cb_actuator):
 					#dialog_client(0, 'Successfully initialized component %s on %s. try.' %(component[0], init_tries_count))
 					component[3]["init_state"] = "OK"
 					component[3]["init_count"] = str(init_tries_count)
@@ -102,25 +133,27 @@ class DailyMorningShow:
 						#	raise NameError('could not initialize %s after %s tries.' %(component[0], init_tries_count))
 						component[3]["init_state"] = "FAIL"
 						component[3]["init_count"] = str(init_tries_count)
+						component[3]["diag_init_state"] = self.get_diagnostics(component)
 						self.all_inits_successful = False
 						init_complete = True
 					else:
 						init_complete = False		
 
 
-	def check_msg(self, state_topic, msg_type):
-		
-		sub_state_topic = rospy.Subscriber(state_topic, msg_type, self.callback_state)
+	def check_msg(self, state_topic, msg_type, cb_function):
+		self.msg_received = False
+		sub_state_topic = rospy.Subscriber(state_topic, msg_type, cb_function)
 		abort_time = rospy.Time.now() + rospy.Duration(self.wait_time)
 		
-		while not self.message_received and rospy.get_rostime() < abort_time:
+		while not self.msg_received and rospy.get_rostime() < abort_time:
 			rospy.sleep(0.1)
-				
-		if not self.message_received:
-			return False
-		else:
-			self.message_received = False
+			
+		sub_state_topic.unregister()
+		
+		#dialog_client(0, 'mgs_received: %s \n\nMsg: %s' %(self.msg_received, self.actuator_msg))
+		if self.msg_received:
 			return True
+		return False
 
 	
 	
@@ -134,10 +167,10 @@ class DailyMorningShow:
 		s_manual_ok = ""
 		s_manual_fail = ""
 		for component in self.actuators:
-			if component[3]["init_state"] == "FAIL" and self.check_msg(component[0], self.actuator_msg):
+			if component[3]["init_state"] == "FAIL" and self.check_msg(component[0], self.actuator_msg_type, self.cb_actuator):
 				s_manual_ok += "- %s \n" %(component[0])
 				component[3]["launch_manual"] == "OK"
-			elif component[3]["init_state"] == "FAIL" and not self.check_msg(component[0], self.actuator_msg):
+			elif component[3]["init_state"] == "FAIL" and not self.check_msg(component[0], self.actuator_msg_type, self.cb_actuator):
 				s_manual_fail += "- %s \n" %(component[0])
 				component[3]["launch_manual"] == "FAIL"
 		dialog_client(0, ('Following components were successfully initialized manually: \n%s'%(s_manual_ok) if s_manual_ok!='' else '') + ('\nFollowing components could not be launched manually: \n%s'%(s_manual_fail) if s_manual_fail!='' else ''))
@@ -151,16 +184,15 @@ class DailyMorningShow:
 				move_handle = self.sss.move(component[0], component[2])
 				if move_handle.get_state() != 3:
 					component[3]["move_to_test"] = "FAIL"
-					#raise NameError('Could not move component %s. Component state: %s' %(component[0], move_handle.get_state()))
-				#self.check_target_reached(component[2])
-				else: component[3]["move_to_test"] = "OK"
-
+					component[3]["diag_move_to_home"] = self.get_diagnostics(component)
+				else:
+					component[3]["move_to_test"] = "OK"
+				
 				# Move back to home position
 				move_handle = self.sss.move(component[0], component[1])
 				if move_handle.get_state() != 3:
 					component[3]["move_to_home"] = "FAIL"
-					#raise NameError('Could not move component %s. Component state: %s' %(component[0], move_handle.get_state()))
-				#self.check_target_reached(component[1])
+					component[3]["diag_move_to_home"] = self.get_diagnostics(component)
 				else: component[3]["move_to_home"] = "OK"
 			else:
 				component[3]["move_to_test"] = "NOT_INIT"
@@ -172,47 +204,82 @@ class DailyMorningShow:
 	
 	def recover_components(self):
 		dialog_client(0, 'Please activate and release the EM Stop. Press "OK" AFTER releasing the EM Stop.')
-		rospy.sleep(3.0)
+		while self.em_stop():
+			dialog_client(0, 'Release the EM-stop and press ''OK''')
+		
+		recover_handle = []
 		for component in self.actuators:
-			recover_handle = self.sss.recover(component[0])
-			if recover_handle.get_error_code() != 0:
+			recover_handle.append(self.sss.recover(component[0]))
+		rospy.sleep(self.wait_time_recover)
+		
+		i = 0
+		for component in self.actuators:
+			if recover_handle[i].get_error_code() != 0:
 				#dialog_client(0, 'Could not recover component %s' %(component[0]))
 				component[3]["recover"] = "FAIL"
+				component[3]["diag_recover"] = self.get_diagnostics(component)
 			else:
 				component[3]["recover"] = "OK"
+			i += 1
 
-####################
-### Sensor tests ###
-####################
+	####################
+	### Sensor tests ###
+	####################
 	def check_scanners(self):
 		for scanner in self.scanners:
-			if self.check_msg("/scan_%s" %(scanner[1]), self.scan_msg):
+			if self.check_msg("/scan_%s" %(scanner[1]), self.scan_msg_type, self.cb_scanner):
 				scanner[2] = "OK"
 			else:
 				scanner[2] = "NO_MSG"
 
-	def check_kinects(self):
-		for kinect in self.kinects:
-			if self.check_msg("/%s/depth_registered/points" %(kinect[1]), self.kinect_msg):
-				kinect[2] = "OK"
+	def check_point_clouds(self):
+		for point_cloud in self.point_clouds:
+			if self.check_msg("/%s/depth_registered/points" %(point_cloud[1]), self.point_cloud_msg_type, self.cb_point_cloud):
+				point_cloud[2] = "OK"
 			else:
-				kinect[2] = "NO_MSG"
+				point_cloud[2] = "NO_MSG"
 				
 	def check_images(self):
 		for camera in self.cameras:
-			if self.check_msg("/%s/rgb/image_raw" %(camera[1]), self.image_msg):
+			if self.check_msg("/%s/rgb/image_raw" %(camera[1]), self.image_msg_type, self.cb_camera):
 				camera[2] = "OK"
 			else:
 				camera[2] = "NO_MSG"
-######################
-### /Sensor tests  ###
-######################	
+				
+				
+		
+	#######################
+	### GET DIAGNOSTICS ###
+	#######################
+	def get_diagnostics(self, component):
+		# Wait for the message
+		self.msg_received = False
+		sub_diagnostics = rospy.Subscriber("/diagnostics", DiagnosticArray, self.cb_diagnostics)
+		abort_time = rospy.Time.now() + rospy.Duration(self.wait_time)
+		while not self.msg_received and rospy.get_rostime() < abort_time:
+			rospy.sleep(0.1)
+		
+		#dialog_client(0, str(self.diagnostics_status))
+		
+		diag_name = ""
+		abort_time = rospy.Time.now() + rospy.Duration(self.wait_time)
+		while diag_name != component[0] and rospy.get_rostime() < abort_time:
+			diag_array = str(self.diagnostics_status)
+			diag_array = diag_array.replace("/","")
+			diag_name = (diag_array.split("name: ", 1)[1]).split("\n",1)[0]
+		sub_diagnostics.unregister()
+		
+		if diag_name == component[0]:
+			diag_msg = (diag_array.split("message: ", 1)[1]).split("\n",1)[0]
+			#dialog_client(0, diag_name + "\n" + diag_msg)
+			return diag_msg
+		return "NO DIAGNOSTIC MSG"
 	
 	
 
 	def print_results(self):
 		# Prepare actuator results
-		actuator_results = np.chararray((len(self.actuators)+3, len(self.actuators)+1), itemsize=15)
+		actuator_results = np.chararray((len(self.dict)+2, len(self.actuators)+1), itemsize=15)
 		actuator_results.fill('')
 		for i, component in enumerate(self.actuators):
 			actuator_results[0,i+1] = str(component[0])
@@ -223,9 +290,9 @@ class DailyMorningShow:
 				j += 1
 		
 		# Prepare sensor results
-		sensor_results = np.array(self.scanners + self.kinects + self.cameras)
+		sensor_results = np.array(self.scanners + self.point_clouds + self.cameras)
 		sensor_results = np.delete(sensor_results, 1, axis=1)
-		empty_fill = np.chararray((sensor_results.shape[0], 4), itemsize=10)
+		empty_fill = np.chararray((sensor_results.shape[0], 4), itemsize=20)
 		empty_fill.fill('')
 		sensor_results = np.concatenate((sensor_results, empty_fill), axis=1)
 		
@@ -233,15 +300,37 @@ class DailyMorningShow:
 		save_results = np.concatenate((actuator_results, sensor_results), axis=0)
 		save_results[0,0] = time.strftime("%d.%m.%Y")
 		dialog_client(0, '%s' %(save_results))
-		output_dir = "/home/nhg-tl/Documents/results/daily_morning_show_results_%s.tsv" %(time.strftime("%Y%m%d"))
+		get_directory = rospy.get_param('~result_dir')
+		output_dir = "%s/daily_morning_show_results_%s.tsv" %(get_directory, time.strftime("%Y%m%d"))
+		#output_dir = "/home/nhg-tl/Documents/results/daily_morning_show_results_%s.tsv" %(time.strftime("%Y%m%d"))
 		np.savetxt(output_dir, save_results, delimiter="\t", fmt="%s")
 		
 		dialog_client(0, 'Test complete! \n\nReview results from the file "%s"' %(output_dir))
 		
+	def cb_em_stop(self, msg):
+		self.em_stop_pressed = msg.emergency_button_stop
+		self.em_msg_received = True
+		
+	def cb_actuator(self, msg):
+		self.actuator_msg = msg.actual.positions
+		self.msg_received = True
 
-	def callback_state(self, msg):
-		#self.actual_pos = msg.actual.positions
-		self.message_received = True
+	def cb_scanner(self, msg):
+		self.scanner_msg = msg.ranges
+		self.msg_received = True
+
+	def cb_point_cloud(self, msg):
+		self.point_cloud_msg = msg.fields
+		self.msg_received = True
+
+	def cb_camera(self, msg):
+		self.camera_msg = msg.data
+		self.msg_received = True
+		
+	def cb_diagnostics(self, msg):
+		self.diagnostics_status = msg.status
+		#self.diagnostics_msg = msg.message
+		self.msg_received = True
 
 if __name__ == '__main__':
 	
