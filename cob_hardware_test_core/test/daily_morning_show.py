@@ -133,7 +133,13 @@ class DailyMorningShow:
 						#	raise NameError('could not initialize %s after %s tries.' %(component[0], init_tries_count))
 						component[3]["init_state"] = "FAIL"
 						component[3]["init_count"] = str(init_tries_count)
+						###
+						dialog_client(0, 'No init' + str(component[0]))
+						###
 						component[3]["diag_init_state"] = self.get_diagnostics(component)
+						###
+						dialog_client(0, 'No init 2' + str(component[0]))
+						###
 						self.all_inits_successful = False
 						init_complete = True
 					else:
@@ -263,7 +269,7 @@ class DailyMorningShow:
 		
 		diag_name = ""
 		abort_time = rospy.Time.now() + rospy.Duration(self.wait_time)
-		while diag_name != component[0] and rospy.get_rostime() < abort_time:
+		while diag_name != ("%s_controller" %(component[0])) and rospy.get_rostime() < abort_time:
 			diag_array = str(self.diagnostics_status)
 			diag_array = diag_array.replace("/","")
 			diag_name = (diag_array.split("name: ", 1)[1]).split("\n",1)[0]
