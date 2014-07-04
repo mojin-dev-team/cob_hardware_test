@@ -63,7 +63,7 @@ class DailyMorningShow:
 			self.actuators = [["torso","home","front_down",dict.copy()],
 							  ["head","home","front_down",dict.copy()],
 							  ["sensorring","front","back",dict.copy()],
-							  ["arm_left","home","folded",dict.copy()],
+							  #["arm_left","home","folded",dict.copy()],
 							  ["arm_right","home","folded",dict.copy()]]
 		
 		
@@ -133,13 +133,7 @@ class DailyMorningShow:
 						#	raise NameError('could not initialize %s after %s tries.' %(component[0], init_tries_count))
 						component[3]["init_state"] = "FAIL"
 						component[3]["init_count"] = str(init_tries_count)
-						###
-						dialog_client(0, 'No init' + str(component[0]))
-						###
 						component[3]["diag_init_state"] = self.get_diagnostics(component)
-						###
-						dialog_client(0, 'No init 2' + str(component[0]))
-						###
 						self.all_inits_successful = False
 						init_complete = True
 					else:
@@ -150,7 +144,7 @@ class DailyMorningShow:
 		self.msg_received = False
 		sub_state_topic = rospy.Subscriber(state_topic, msg_type, cb_function)
 		abort_time = rospy.Time.now() + rospy.Duration(self.wait_time)
-		dialog_client(0, 'rostime: %s\n\nabort_time: %s' %(rospy.get_rostime(), abort_time))
+		
 		while not self.msg_received and rospy.get_rostime() < abort_time:
 			rospy.sleep(0.1)
 			
@@ -285,7 +279,7 @@ class DailyMorningShow:
 
 	def print_results(self):
 		# Prepare actuator results
-		actuator_results = np.chararray((len(self.dict)+2, len(self.actuators)+1), itemsize=15)
+		actuator_results = np.chararray((len(self.dict)+2, len(self.actuators)+1), itemsize=20)
 		actuator_results.fill('')
 		for i, component in enumerate(self.actuators):
 			actuator_results[0,i+1] = str(component[0])
@@ -297,8 +291,8 @@ class DailyMorningShow:
 		
 		# Prepare sensor results
 		sensor_results = np.array(self.scanners + self.point_clouds + self.cameras)
-		sensor_results = np.delete(sensor_results, 1, axis=1)
-		empty_fill = np.chararray((sensor_results.shape[0], 4), itemsize=20)
+		sensor_results = np.delete(sensor_results, 1, axis=1) # Delete the second column that contains topic names
+		empty_fill = np.chararray((sensor_results.shape[0], (len(self.actuators)-len(sensor_results[0])+1)), itemsize=1) # Make the sensor_result array the same width as actuator_result, so we can concatenate them
 		empty_fill.fill('')
 		sensor_results = np.concatenate((sensor_results, empty_fill), axis=1)
 		
