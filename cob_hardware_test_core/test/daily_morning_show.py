@@ -246,7 +246,7 @@ class DailyMorningShow:
 		
 		# Wait for the message
 		self.msg_received = False
-		sub_diagnostics = rospy.Subscriber("/diagnostics_agg", DiagnosticArray, self.cb_diagnostics)
+		sub_diagnostics = rospy.Subscriber("/diagnostics", DiagnosticArray, self.cb_diagnostics)
 		abort_time = rospy.Time.now() + rospy.Duration(self.wait_time)
 		while not self.msg_received and rospy.get_rostime() < abort_time:
 			rospy.sleep(0.1)
