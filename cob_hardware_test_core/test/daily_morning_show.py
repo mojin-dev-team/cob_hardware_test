@@ -27,6 +27,7 @@ class DailyMorningShow:
 		self.max_init_tries = 1		# maximum initialization tries for each component
 		self.wait_time = 1		# waiting time (in seconds) before trying initialization again
 		self.wait_time_recover = 1
+		self.wait_time_diag = 3
 		###
 
 		self.sss = simple_script_server()	
@@ -44,20 +45,14 @@ class DailyMorningShow:
 				('launch_manual','NULL'), 
 				('move_to_test','NULL'), 
 				('move_to_home','NULL'), 
-				('recover','NULL'), 
-				('',''),
-				('diag_init_state',''), 
-				('diag_launch_manual',''), 
-				('diag_move_to_test',''), 
-				('diag_move_to_home',''), 
-				('diag_recover',''))
+				('recover','NULL'))
 		dict = collections.OrderedDict(self.dict)
 		
 		if not rospy.get_param('~sim'):
 			self.actuators = [["torso","home","home",dict.copy()],
 							  ["head","home","front_down",dict.copy()],
 							  ["sensorring","front","back",dict.copy()],
-							  ["arm_left","home","front",dict.copy()],
+							  #["arm_left","home","front",dict.copy()],
 							  ["arm_right","home","front",dict.copy()]]
 		else:
 			self.actuators = [["torso","home","front_down",dict.copy()],
@@ -131,9 +126,8 @@ class DailyMorningShow:
 					if init_tries_count >= self.max_init_tries:
 						#if not dialog_client(1, 'Could not initialize %s after %s tries. Continue the test?' %(component[0], init_tries_count)):
 						#	raise NameError('could not initialize %s after %s tries.' %(component[0], init_tries_count))
-						component[3]["init_state"] = "FAIL"
+						component[3]["init_state"] = "FAIL: " + self.get_diagnostics(component)
 						component[3]["init_count"] = str(init_tries_count)
-						component[3]["diag_init_state"] = self.get_diagnostics(component)
 						self.all_inits_successful = False
 						init_complete = True
 					else:
@@ -172,27 +166,25 @@ class DailyMorningShow:
 				component[3]["launch_manual"] == "OK"
 			elif component[3]["init_state"] == "FAIL" and not self.check_msg(component[0], self.actuator_msg_type, self.cb_actuator):
 				s_manual_fail += "- %s \n" %(component[0])
-				component[3]["launch_manual"] == "FAIL"
+				component[3]["launch_manual"] == "FAIL: " + self.get_diagnostics(component)
 		dialog_client(0, ('Following components were successfully initialized manually: \n%s'%(s_manual_ok) if s_manual_ok!='' else '') + ('\nFollowing components could not be launched manually: \n%s'%(s_manual_fail) if s_manual_fail!='' else ''))
 	
 	
 	
 	def move_components(self):
 		for component in self.actuators:
-			if component[3]["init_state"] == "OK":
+			if component[3]["init_state"] == "OK" or component[3]["launch_manual"] == "OK":
 				# Move to test position
 				move_handle = self.sss.move(component[0], component[2])
 				if move_handle.get_state() != 3:
-					component[3]["move_to_test"] = "FAIL"
-					component[3]["diag_move_to_home"] = self.get_diagnostics(component)
+					component[3]["move_to_test"] = "FAIL: " + self.get_diagnostics(component)
 				else:
 					component[3]["move_to_test"] = "OK"
 				
 				# Move back to home position
 				move_handle = self.sss.move(component[0], component[1])
 				if move_handle.get_state() != 3:
-					component[3]["move_to_home"] = "FAIL"
-					component[3]["diag_move_to_home"] = self.get_diagnostics(component)
+					component[3]["move_to_home"] = "FAIL: " + self.get_diagnostics(component)
 				else: component[3]["move_to_home"] = "OK"
 			else:
 				component[3]["move_to_test"] = "NOT_INIT"
@@ -216,8 +208,7 @@ class DailyMorningShow:
 		for component in self.actuators:
 			if recover_handle[i].get_error_code() != 0:
 				#dialog_client(0, 'Could not recover component %s' %(component[0]))
-				component[3]["recover"] = "FAIL"
-				component[3]["diag_recover"] = self.get_diagnostics(component)
+				component[3]["recover"] = "FAIL: " + self.get_diagnostics(component)
 			else:
 				component[3]["recover"] = "OK"
 			i += 1
@@ -252,9 +243,10 @@ class DailyMorningShow:
 	### GET DIAGNOSTICS ###
 	#######################
 	def get_diagnostics(self, component):
+		
 		# Wait for the message
 		self.msg_received = False
-		sub_diagnostics = rospy.Subscriber("/diagnostics", DiagnosticArray, self.cb_diagnostics)
+		sub_diagnostics = rospy.Subscriber("/diagnostics_agg", DiagnosticArray, self.cb_diagnostics)
 		abort_time = rospy.Time.now() + rospy.Duration(self.wait_time)
 		while not self.msg_received and rospy.get_rostime() < abort_time:
 			rospy.sleep(0.1)
@@ -262,37 +254,43 @@ class DailyMorningShow:
 		#dialog_client(0, str(self.diagnostics_status))
 		
 		diag_name = ""
-		abort_time = rospy.Time.now() + rospy.Duration(self.wait_time)
+		abort_time = rospy.Time.now() + rospy.Duration(self.wait_time_diag)
 		while diag_name != ("%s_controller" %(component[0])) and rospy.get_rostime() < abort_time:
 			diag_array = str(self.diagnostics_status)
 			diag_array = diag_array.replace("/","")
 			diag_name = (diag_array.split("name: ", 1)[1]).split("\n",1)[0]
 		sub_diagnostics.unregister()
 		
-		if diag_name == component[0]:
+		###
+		diag_msg = (diag_array.split("message: ", 1)[1]).split("\n",1)[0]
+		dialog_client(0,"%s \n\n%s \n\n%s" %(component[0], diag_name, diag_msg))
+		###
+		
+		if diag_name == ("%s_controller" %(component[0])):
 			diag_msg = (diag_array.split("message: ", 1)[1]).split("\n",1)[0]
 			#dialog_client(0, diag_name + "\n" + diag_msg)
-			return diag_msg
-		return "NO DIAGNOSTIC MSG"
+			return '"%s"' %(diag_msg)
+		return '"NO DIAGNOSTIC MSG"'
 	
 	
 
 	def print_results(self):
+		
 		# Prepare actuator results
-		actuator_results = np.chararray((len(self.dict)+2, len(self.actuators)+1), itemsize=20)
+		actuator_results = np.chararray((len(self.actuators)+4, len(self.dict)+1), itemsize=20)
 		actuator_results.fill('')
 		for i, component in enumerate(self.actuators):
-			actuator_results[0,i+1] = str(component[0])
-			j = 0
+			actuator_results[i+2,0] = component[0]
+			j=0
 			for key, value in component[3].iteritems():
-				actuator_results[j+1,0] = str(key)
-				actuator_results[j+1,i+1] = str(value)
-				j += 1
+				actuator_results[1,j+1] = str(key)
+				actuator_results[i+2,j+1] = str(value)
+				j+=1
 		
 		# Prepare sensor results
 		sensor_results = np.array(self.scanners + self.point_clouds + self.cameras)
 		sensor_results = np.delete(sensor_results, 1, axis=1) # Delete the second column that contains topic names
-		empty_fill = np.chararray((sensor_results.shape[0], (len(self.actuators)-len(sensor_results[0])+1)), itemsize=1) # Make the sensor_result array the same width as actuator_result, so we can concatenate them
+		empty_fill = np.chararray((sensor_results.shape[0], (len(self.dict)-len(sensor_results[0])+1)), itemsize=1) # Make the sensor_result array the same width as actuator_result, so we can concatenate them
 		empty_fill.fill('')
 		sensor_results = np.concatenate((sensor_results, empty_fill), axis=1)
 		
