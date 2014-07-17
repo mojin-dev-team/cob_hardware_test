@@ -24,7 +24,7 @@ class DailyMorningShow:
 		rospy.init_node('daily_morning_show')
 		
 		### PARAMETERS
-		self.max_init_tries = 1		# maximum initialization tries for each component
+		self.max_init_tries = 3		# maximum initialization tries for each component
 		self.wait_time = 1		# waiting time (in seconds) before trying initialization again
 		self.wait_time_recover = 1
 		self.wait_time_diag = 3
@@ -270,14 +270,14 @@ class DailyMorningShow:
 			diag_msg = (diag_array.split("message: ", 1)[1]).split("\n",1)[0]
 			#dialog_client(0, diag_name + "\n" + diag_msg)
 			return '"%s"' %(diag_msg)
-		return '"NO DIAGNOSTIC MSG"'
+		return '"NO DIAGNOSTICS FOUND"'
 	
 	
 
 	def print_results(self):
 		
 		# Prepare actuator results
-		actuator_results = np.chararray((len(self.actuators)+4, len(self.dict)+1), itemsize=20)
+		actuator_results = np.chararray((len(self.actuators)+4, len(self.dict)+1), itemsize=50)
 		actuator_results.fill('')
 		for i, component in enumerate(self.actuators):
 			actuator_results[i+2,0] = component[0]
@@ -327,7 +327,6 @@ class DailyMorningShow:
 		
 	def cb_diagnostics(self, msg):
 		self.diagnostics_status = msg.status
-		#self.diagnostics_msg = msg.message
 		self.msg_received = True
 
 if __name__ == '__main__':
