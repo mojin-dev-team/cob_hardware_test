@@ -8,12 +8,13 @@ import roslib
 roslib.load_manifest('cob_hardware_test_core')
 import rospy
 
-# msg imports
+# msg & srv imports
 from trajectory_msgs.msg import *
 from sensor_msgs.msg import *
 from pr2_controllers_msgs.msg import *
 from diagnostic_msgs.msg import *
 from cob_relayboard.msg import *
+from cob_hardware_test_core.srv import TestTrigger
 
 # care-o-bot includes
 from simple_script_server import *
@@ -53,6 +54,7 @@ class ComponentTestAll:
 			self.base_goals = params_base
 		except:
 			raise NameError('###############')
+			
 		# Get actuator parameters
 		try:
 			params_actuator = rospy.get_param('~component_test/actuators')
@@ -62,16 +64,14 @@ class ComponentTestAll:
 				i+=1
 		except:
 			raise NameError('###############')
-		# Get sensor parameters
-		try:
-			params_sensors = rospy.get_param('~component_test/sensors')
-			i=0
-			for k in params_sensors.keys():
-				self.sensors.append(params_sensors[k])
-				i+=1
-		except:
-			raise NameError('###############')
 			
+		# Get test duration
+		try:
+			self.test_duration = 60 * int(rospy.get_param('~test_duration'))
+		except:
+			raise NameError('Test duration not set or set improperly. Please give test duration in minutes as an integer.')
+			
+		
 		# Subscribe to em-stop topic
 		self.em_msg_received = False
 		sub_em_stop = rospy.Subscriber("/emergency_stop_state", EmergencyStopState, self.cb_em_stop)
@@ -105,23 +105,29 @@ class ComponentTestAll:
 	def run(self):
 		self.test_count = 0
 		self.diag_count = None
-		while self.test_count < self.test_numbers:
+		
+		self.test_on = True
+		self.test_trigger_server()
+		
+		duration = rospy.Time.now() + rospy.Duration(self.test_duration)
+		while duration > rospy.Time.now():
 			# Init actuators
 			for component in self.actuators:
 				self.init_component(component['name'], component['topic'], component['msg_type'])
 			# Move base
-			self.move_base(self.base_goals)
+			#self.move_base(self.base_goals)
 			# Move actuators
 			for component in self.actuators:
 				self.move_component(component, component['test_target'])
 				self.move_component(component, component['default_target'])
-			# Test sensors
-			for component in self.sensors:
-				self.test_sensor(component)
-			
 					
 			self.test_count += 1
+			
+		self.test_on = False
+		
 		self.log_file.close()
+		
+		rospy.sleep(5)
 	
 	
 	def init_component(self, component, topic, msg_type):
@@ -159,14 +165,6 @@ class ComponentTestAll:
 		if self.msg_received:
 			return True
 		return False
-	
-	
-			
-	### Sensor test ###
-	def test_sensor(self, component):
-		if not self.check_msg(component['topic'], component['msg_type']):
-			message = 'No message received from sensor <<%s>> \TOPIC: %s' %(component['name'], component['topic'])
-			self.log_diagnostics(component, message)
 		
 	
 	def move_base(self, base_goals):
@@ -246,6 +244,15 @@ class ComponentTestAll:
 		else:
 			self.log_file.write("No diagnostics found by name \"" + name + "\"\n\n")
 		self.diag_count = self.test_count
+	
+	
+	def handle_test_trigger(self, req):
+		return self.test_on
+
+	def test_trigger_server(self):
+		#rospy.init_node('test_trigger_server')
+		s = rospy.Service('test_trigger', TestTrigger, self.handle_test_trigger)
+	
 	
 	
 			
