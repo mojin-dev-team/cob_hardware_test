@@ -77,7 +77,6 @@ class SensorTest:
 		complete_name = '%s/sensor_test_results_%s.txt' %(log_dir, time.strftime("%Y%m%d"))
 		self.log_file = open(complete_name,'w')	
 			
-		
 			
 			
 		# Prepare test-results file
