@@ -104,7 +104,6 @@ class ComponentTestAll:
 		
 		
 		
-		
 		## TODO: Check that all the parameters (targets, topic, etc..) are set properly for each component
 		## TODO: Check that at least one of the components (base, actuator, sensor) is received from param server
 		## TODO: Improve cb_function selection in check_msg function
