@@ -3,8 +3,8 @@ component_test:
     goals:
       # Test goals [x,y,theta]
       test_0: [0, 0, 0]
-      test_1: [1, 0, 0]
-      #test_1: [1, 0, 0]
+      test_1: [0.5, 0, 0]
+      #test_2: [-0.1, 0, 0]
       #test_2: [0, -1, 0]
       #test_3: [1, -1, 0]
   actuators:
@@ -16,14 +16,14 @@ component_test:
       msg_type: JointTrajectoryControllerState
       wait_time: 10.0
       error_range: 0.1
-    head:
-      name: "head"
-      test_target: "front_down"
-      default_target: "front"
-      topic: /head_controller/state
-      msg_type: JointTrajectoryControllerState
-      wait_time: 10.0
-      error_range: 0.1
+#    head:
+#      name: "head"
+#      test_target: "front_down"
+#      default_target: "front"
+#      topic: /head_controller/state
+#      msg_type: JointTrajectoryControllerState
+#      wait_time: 10.0
+#      error_range: 0.1
     sensorring:
       name: "sensorring"
       test_target: "back"
@@ -34,7 +34,7 @@ component_test:
       error_range: 0.1
     arm_left:
       name: "arm_left"
-      test_target: "folded"
+      test_target: "front"
       default_target: "home"
       topic: /arm_left_controller/state
       msg_type: JointTrajectoryControllerState
@@ -42,7 +42,7 @@ component_test:
       error_range: 0.1
     arm_right:
       name: "arm_right"
-      test_target: "folded"
+      test_target: "front"
       default_target: "home"
       topic: /arm_right_controller/state
       msg_type: JointTrajectoryControllerState

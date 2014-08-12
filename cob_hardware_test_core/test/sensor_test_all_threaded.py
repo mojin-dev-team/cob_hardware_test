@@ -48,14 +48,14 @@ class SensorTest:
 		self.test_finished = False
 		
         # Create logfile
-		complete_name = '/home/nhg-tl/Documents/AllComponentsTest/results/sensor_test_results_%s.txt' %(time.strftime("%Y%m%d"))
+		complete_name = '/u/nhg-tl/test_results/sensor_test_results_%s.txt' %(time.strftime("%Y%m%d"))
 		self.log_file = open(complete_name,'w')
 		
 		
 		### GET PARAMETERS ###
 		self.sensors = []
 		try:
-			params = rospy.get_param('~component_test/sensors')
+			params = rospy.get_param('/component_test/sensors')
 			i=0
 			for k in params.keys():
 				self.sensors.append(params[k])
