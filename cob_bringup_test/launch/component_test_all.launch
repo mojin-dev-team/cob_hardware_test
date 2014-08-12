@@ -3,8 +3,9 @@
 
     <arg name="robot" default="$(optenv ROBOT !!NO_ROBOT_SET!!)"/>
     <arg name="sim" default="false" />
-    <arg name="cob4-1-t1" value="cob4-1-t1"/>
-    <arg name="duration"/>
+    <arg name="cob4-1-t1" value="cob4-1-t1" />
+    <arg name="duration" />
+    <arg name="log_dir" />
 
 
     <!-- start dialog service -->
@@ -16,6 +17,10 @@
         <arg name="robot" value="$(arg robot)" />
     </include>
 
+    <!-- launch component or simulation-->
+    <include file="$(find cob_bringup)/robot.launch" unless="$(arg sim)" >
+        <arg name="robot" value="$(arg robot)" />
+    </include>
     <!--<group>
         <machine name="cob4-1-t1" address="$(arg cob4-1-t1)" env-loader="$(find cob_bringup)/env.sh" default="true"/>
 		
@@ -31,11 +36,12 @@
     <node name="component_test" pkg="cob_hardware_test_core" type="component_test_all.py" >
         <rosparam command="load" file="$(find cob_bringup_test)/config/$(arg robot)/all_components_test.yaml" />
         <param name="test_duration" value="$(arg duration)" />
+        <param name="result_dir" value="$(arg log_dir)" />
     </node>
 
     <node name="sensor_test" pkg="cob_hardware_test_core" type="sensor_test_all_threaded.py" >
         <rosparam command="load" file="$(find cob_bringup_test)/config/$(arg robot)/all_components_test.yaml" />
-        <param name="test_duration" value="$(arg duration)" />
+        <param name="result_dir" value="$(arg log_dir)" />
     </node>
 
 
