@@ -31,10 +31,13 @@ class ComponentTestAll:
 		self.wait_time_diag = 1		# waiting time in seconds 
 		self.test_numbers = 2		# number of test repeats
 		
+<<<<<<< HEAD
 		# Make logfile
 		complete_name = '/u/nhg-tl/test_results/component_test_results_%s.txt' %(time.strftime("%Y%m%d"))
 		self.log_file = open(complete_name,'w')
 		
+=======
+>>>>>>> 5ecab4f6d82b0495bf6d67b06faf8a00d8939d31
 		# Message types
 		self.actuator_msg = JointTrajectoryControllerState
 		self.scan_msg = LaserScan
@@ -67,11 +70,28 @@ class ComponentTestAll:
 			
 		# Get test duration
 		try:
+<<<<<<< HEAD
 			self.test_duration = 60 * int(rospy.get_param('/component_test/test_duration'))
+=======
+			self.test_duration = 60.0 * int(rospy.get_param('/component_test/test_duration'))
+>>>>>>> 5ecab4f6d82b0495bf6d67b06faf8a00d8939d31
 		except:
 			raise NameError('Test duration not set or set improperly. Please give test duration in minutes as an integer.')
 			
 		
+		# Get log-file directory
+		try:
+			log_dir = rospy.get_param('/component_test/result_dir')
+		except:
+			raise NameError('Test-result directory not set.')
+			
+		# Create logfile
+		#complete_name = '/home/nhg-tl/Documents/AllComponentsTest/results/component_test_results_%s.txt' %(time.strftime("%Y%m%d"))
+		complete_name = '%s/component_test_results_%s.txt' %(log_dir, time.strftime("%Y%m%d"))
+		self.log_file = open(complete_name,'w')	
+			
+			
+			
 		# Subscribe to em-stop topic
 		self.em_msg_received = False
 		sub_em_stop = rospy.Subscriber("/emergency_stop_state", EmergencyStopState, self.cb_em_stop)
@@ -94,7 +114,12 @@ class ComponentTestAll:
 		## TODO: Save log for 'Could not move base to Target/Home'
 		## TODO: Time limit for move_base function excecuting sss.stop() command after predefined limit
 		## TODO: Don't try to move component, if initialization wasn't successful
+<<<<<<< HEAD
 		
+=======
+		## TODO: Add not rospy.is_shutdown() condition to every loop
+		## TODO: Test summary (how many tests performed per component and how many fails etc..)
+>>>>>>> 5ecab4f6d82b0495bf6d67b06faf8a00d8939d31
 		
 		
 		
@@ -111,7 +136,10 @@ class ComponentTestAll:
 		self.log_file.write('\n\n')
 	
 	
-	### RUN ###
+	
+	#############
+	#### RUN ####
+	#############
 	def run(self):
 		self.test_count = 0
 		self.diag_count = None
@@ -119,20 +147,30 @@ class ComponentTestAll:
 		self.test_on = True
 		self.test_trigger_server()
 		
+		
+		set_up_components = []
 		duration = rospy.Time.now() + rospy.Duration(self.test_duration)
 		while duration > rospy.Time.now():
 			# Init base
+<<<<<<< HEAD
 			if self.base_goals != None:
 				init_handle = self.sss.init("base")
+=======
+			if self.base_goals != None and not 'base' in set_up_components:
+				init_handle = self.sss.init('base')
+				set_up_components.append('base')
+>>>>>>> 5ecab4f6d82b0495bf6d67b06faf8a00d8939d31
 			# Init actuators
 			for component in self.actuators:
-				self.init_component(component['name'], component['topic'], component['msg_type'])
+				if not component['name'] in set_up_components and self.init_component(component):
+					set_up_components.append(component['name'])
 			# Move base
 			self.move_base(self.base_goals)
 			# Move actuators
 			for component in self.actuators:
-				self.move_component(component, component['test_target'])
-				self.move_component(component, component['default_target'])
+				if component['name'] in set_up_components:
+					self.move_component(component, component['test_target'])
+					self.move_component(component, component['default_target'])
 					
 			self.test_count += 1
 			
@@ -143,22 +181,33 @@ class ComponentTestAll:
 		rospy.sleep(5)
 	
 	
-	def init_component(self, component, topic, msg_type):
+	
+	
+	
+	def init_component(self, component):
 		init_tries_count = 0
 		init_complete = False
 		
 		while not init_complete:
-			init_handle = self.sss.init(component)
+			init_handle = self.sss.init(component['name'])
 			init_tries_count += 1
 			
-			if self.check_msg(topic, msg_type):
+			if self.check_msg(component['topic'], component['msg_type']):
 				init_complete = True
+				return True
 			elif init_tries_count >= self.max_init_tries:
 				init_complete = True
 				message = ('Could not initialize component <<%s>>'
+<<<<<<< HEAD
 					   '\nerrorCode: %s'
 					   %(component, init_handle.get_error_code()))
 				self.log_diagnostics(component, message)
+=======
+						   '\nerrorCode: %s'
+						   %(component['name'], init_handle.get_error_code()))
+				self.log_diagnostics(component['name'], message)
+				return False
+>>>>>>> 5ecab4f6d82b0495bf6d67b06faf8a00d8939d31
 	
 	
 	
@@ -249,7 +298,10 @@ class ComponentTestAll:
 				message = ('Could not get the actual position of component <<%s>>.'
 						   '\nTarget position: <<%s>>' %(component['name'], target))
 				self.log_diagnostics(component['name'], message)
+<<<<<<< HEAD
 		
+=======
+>>>>>>> 5ecab4f6d82b0495bf6d67b06faf8a00d8939d31
 				
 				
 				

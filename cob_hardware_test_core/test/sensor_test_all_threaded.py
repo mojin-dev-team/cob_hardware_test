@@ -47,10 +47,13 @@ class SensorTest:
 		self.lock = threading.Lock()
 		self.test_finished = False
 		
+<<<<<<< HEAD
         # Create logfile
 		complete_name = '/u/nhg-tl/test_results/sensor_test_results_%s.txt' %(time.strftime("%Y%m%d"))
 		self.log_file = open(complete_name,'w')
 		
+=======
+>>>>>>> 5ecab4f6d82b0495bf6d67b06faf8a00d8939d31
 		
 		### GET PARAMETERS ###
 		self.sensors = []
@@ -62,14 +65,26 @@ class SensorTest:
 				self.sensors[i]['fail'] = False
 				i+=1
 		except:
-			raise NameError('Could not find parameters under \'~component_test/sensors\'')
+			raise NameError('Could not find parameters under "/component_test/sensors"')
 			
 		# Get test duration
 		try:
-			self.test_duration = 60 * int(rospy.get_param('~test_duration'))
+			self.test_duration = 60.0 * int(rospy.get_param('/component_test/test_duration'))
 		except:
 			raise NameError('Test duration not set or set improperly. Please give test duration in minutes as an integer.')
+		
+		# Get log-file directory
+		try:
+			log_dir = rospy.get_param('/component_test/result_dir')
+		except:
+			raise NameError('Test-result directory not set.')
 			
+		# Create logfile
+		#complete_name = '/home/nhg-tl/Documents/AllComponentsTest/results/component_test_results_%s.txt' %(time.strftime("%Y%m%d"))
+		complete_name = '%s/sensor_test_results_%s.txt' %(log_dir, time.strftime("%Y%m%d"))
+		self.log_file = open(complete_name,'w')	
+			
+		
 			
 			
 		# Prepare test-results file
