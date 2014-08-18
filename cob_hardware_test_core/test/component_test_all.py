@@ -27,17 +27,10 @@ class ComponentTestAll:
 		
 		### PARAMETERS ###
 		self.max_init_tries = 1		# maximum initialization tries for each component
-		self.wait_time = 3			# waiting time (in seconds) before trying initialization again
+		self.wait_time = 3			# waiting time (in seconds) for state message
 		self.wait_time_diag = 1		# waiting time in seconds 
 		self.test_numbers = 2		# number of test repeats
 		
-<<<<<<< HEAD
-		# Make logfile
-		complete_name = '/u/nhg-tl/test_results/component_test_results_%s.txt' %(time.strftime("%Y%m%d"))
-		self.log_file = open(complete_name,'w')
-		
-=======
->>>>>>> 5ecab4f6d82b0495bf6d67b06faf8a00d8939d31
 		# Message types
 		self.actuator_msg = JointTrajectoryControllerState
 		self.scan_msg = LaserScan
@@ -51,12 +44,13 @@ class ComponentTestAll:
 		self.base_goals = None
 		self.actuators = []
 		self.sensors = []
+		
 		# Get base goals
 		try:
 			params_base = rospy.get_param('/component_test/base/goals')
 			self.base_goals = params_base
 		except:
-			raise NameError('###############')
+			pass
 			
 		# Get actuator parameters
 		try:
@@ -66,15 +60,27 @@ class ComponentTestAll:
 				self.actuators.append(params_actuator[k])
 				i+=1
 		except:
-			raise NameError('###############')
+			pass
+			
+		try:
+			params = rospy.get_param('/component_test/sensors')
+			i=0
+			for k in params.keys():
+				self.sensors.append(params[k])
+				self.sensors[i]['fail'] = False
+				i+=1
+		except:
+			pass
+			
+		if not self.base_goals and not self.actuators and not self.sensors:
+			raise NameError('Couldn\'t find any components to test under /component_test namespace. '
+							'You need to define at least one component in order to run the program (base, actuator, sensor). '
+							'View the documentation to see how to define test-components.')
+		
 			
 		# Get test duration
 		try:
-<<<<<<< HEAD
-			self.test_duration = 60 * int(rospy.get_param('/component_test/test_duration'))
-=======
 			self.test_duration = 60.0 * int(rospy.get_param('/component_test/test_duration'))
->>>>>>> 5ecab4f6d82b0495bf6d67b06faf8a00d8939d31
 		except:
 			raise NameError('Test duration not set or set improperly. Please give test duration in minutes as an integer.')
 			
@@ -88,7 +94,7 @@ class ComponentTestAll:
 		# Create logfile
 		#complete_name = '/home/nhg-tl/Documents/AllComponentsTest/results/component_test_results_%s.txt' %(time.strftime("%Y%m%d"))
 		complete_name = '%s/component_test_results_%s.txt' %(log_dir, time.strftime("%Y%m%d"))
-		self.log_file = open(complete_name,'w')	
+		self.log_file = open(complete_name,'w')
 			
 			
 			
@@ -105,35 +111,31 @@ class ComponentTestAll:
 		
 		
 		## TODO: Check that all the parameters (targets, topic, etc..) are set properly for each component
-		## TODO: Check that at least one of the components (base, actuator, sensor) is received from param server
-		## TODO: Improve cb_function selection in check_msg function
-		## TODO: Result-file path given as a parameter
-		## TODO: Init base
+		## TODO: Check that at least one of the components (base, actuator) is received from param server
 		## TODO: Save log for 'Target position out of error range'
-		## TODO: Save log for 'Could not move base to Target/Home'
-		## TODO: Time limit for move_base function excecuting sss.stop() command after predefined limit
-		## TODO: Don't try to move component, if initialization wasn't successful
-<<<<<<< HEAD
-		
-=======
+		## TODO: Time limit for move_base function. Excecute sss.stop() if too much time passed
 		## TODO: Add not rospy.is_shutdown() condition to every loop
 		## TODO: Test summary (how many tests performed per component and how many fails etc..)
->>>>>>> 5ecab4f6d82b0495bf6d67b06faf8a00d8939d31
 		
 		
-		
-		
-		# Save test info to results file
-		self.log_file.write('Component test %s' %(time.strftime('%d.%m.%Y')))
-		self.log_file.write('\n\nTested components: \n')
-		if self.base_goals != None:
-			self.log_file.write('  base\n')
-		try:
-			for actuator in self.actuators:
-				self.log_file.write('  ' + actuator['name'] + '\n')
-		except: pass
-		self.log_file.write('\n\n')
-	
+		# Create and prepare log file		
+		if self.base_goals or self.actuators:
+			
+			#complete_name = '/home/nhg-tl/Documents/AllComponentsTest/results/component_test_results_%s.txt' %(time.strftime("%Y%m%d"))
+			complete_name = '%s/component_test_results_%s.txt' %(log_dir, time.strftime("%Y%m%d"))
+			self.log_file = open(complete_name,'w')
+			
+			self.log_file.write('Component test %s' %(time.strftime('%d.%m.%Y')))
+			self.log_file.write('\n\nTested components: \n')
+			if self.base_goals:
+				self.log_file.write('  base\n')
+			if self.actuators:
+				for actuator in self.actuators:
+					self.log_file.write('  ' + actuator['name'] + '\n')
+			self.log_file.write('\n\n')
+			self.log_file.write('[INFO] [%s] [%s]'
+								'\n  Test started.\n\n\n' 
+								%(time.strftime('%H:%M:%S'), rospy.Time.now()))
 	
 	
 	#############
@@ -150,73 +152,98 @@ class ComponentTestAll:
 		set_up_components = []
 		duration = rospy.Time.now() + rospy.Duration(self.test_duration)
 		while duration > rospy.Time.now():
-			# Init base
-<<<<<<< HEAD
-			if self.base_goals != None:
-				init_handle = self.sss.init("base")
-=======
-			if self.base_goals != None and not 'base' in set_up_components:
-				init_handle = self.sss.init('base')
-				set_up_components.append('base')
->>>>>>> 5ecab4f6d82b0495bf6d67b06faf8a00d8939d31
-			# Init actuators
-			for component in self.actuators:
-				if not component['name'] in set_up_components and self.init_component(component):
-					set_up_components.append(component['name'])
-			# Move base
-			self.move_base(self.base_goals)
-			# Move actuators
-			for component in self.actuators:
-				if component['name'] in set_up_components:
-					self.move_component(component, component['test_target'])
-					self.move_component(component, component['default_target'])
-					
-			self.test_count += 1
+			if self.base_goals or self.actuators:
+				# Init base
+				if self.base_goals != None and not 'base' in set_up_components and self.init_component('base', '/base_controller/state', 'JointTrajectoryControllerState'):
+					set_up_components.append('base')
+				# Init actuators
+				for component in self.actuators:
+					if not component['name'] in set_up_components and self.init_component(component['name'], component['topic'], component['msg_type']):
+						set_up_components.append(component['name'])
+				# Move base
+				if self.base_goals != None and 'base' in set_up_components:
+					self.move_base(self.base_goals)
+				# Move actuators
+				for component in self.actuators:
+					if component['name'] in set_up_components:
+						self.move_component(component, component['test_target'])
+						self.move_component(component, component['default_target'])
+				self.test_count += 1
+			rospy.sleep(0.1)
 			
 		self.test_on = False
 		
-		self.log_file.close()
+							
+		if self.base_goals or self.actuators:
+			self.log_file.write('[INFO] [%s] [%s]'
+								'\n  Test Ended.' %(time.strftime('%H:%M:%S'), rospy.Time.now()))
+			self.log_file.close()
 		
-		rospy.sleep(5)
+		rospy.sleep(1)
 	
 	
 	
 	
 	
-	def init_component(self, component):
-		init_tries_count = 0
-		init_complete = False
+	def init_component(self, component, topic, msg_type):
 		
-		while not init_complete:
-			init_handle = self.sss.init(component['name'])
-			init_tries_count += 1
+		init_handle = self.sss.init(component)
+		init_count = 1
+		while init_handle.get_error_code != 0 and init_count > self.max_init_tries:
+			init_handle = self.sss.init(component)
+			init_count += 1
+		
+		
+		state_received = self.check_msg(topic, msg_type)
+		
+		if init_handle.get_error_code() == 0 and state_received:
+			return True
 			
-			if self.check_msg(component['topic'], component['msg_type']):
-				init_complete = True
-				return True
-			elif init_tries_count >= self.max_init_tries:
-				init_complete = True
-				message = ('Could not initialize component <<%s>>'
-<<<<<<< HEAD
+		elif init_handle.get_error_code() == 0 and not state_received:
+			message = ('Failed to initialize component <<%s>>'
+					   '\nErrorCode shows successful initialization, '
+					   'but could not receive state message within wait_time (%s) from component\'s state topic %s'
+					   '\nerrorCode: %s'
+					   %(component, self.wait_time, topic, init_handle.get_error_code()))
+					   
+		elif init_handle.get_error_code() != 0 and state_received:
+			message = ('Failed to initialize component <<%s>>, but state message received successfully from component\'s state topic'
 					   '\nerrorCode: %s'
 					   %(component, init_handle.get_error_code()))
-				self.log_diagnostics(component, message)
-=======
-						   '\nerrorCode: %s'
-						   %(component['name'], init_handle.get_error_code()))
-				self.log_diagnostics(component['name'], message)
-				return False
->>>>>>> 5ecab4f6d82b0495bf6d67b06faf8a00d8939d31
+					   
+		else:
+			message = ('Failed to initialize component <<%s>>'
+					   '\nerrorCode: %s'
+					   %(component, init_handle.get_error_code()))
+					   
+		self.log_diagnostics(component, message)
+		return False
+		
+		
+		#init_tries_count = 0
+		#init_complete = False	
+		
+		#while not init_complete:		
+			#init_handle = self.sss.init(component['name'])
+			#init_tries_count += 1
+			
+			#if self.check_msg(component['topic'], component['msg_type']):
+				#init_complete = True
+				#return True
+			#elif init_tries_count >= self.max_init_tries:
+				#init_complete = True
+				#message = ('Could not initialize component <<%s>>'
+						   #'\nerrorCode: %s'
+						   #%(component['name'], init_handle.get_error_code()))
+				#self.log_diagnostics(component['name'], message)
+				#return False
 	
 	
 	
 	def check_msg(self, topic, msg_type):
 		self.msg_received = False
 		if str(msg_type) == "JointTrajectoryControllerState": cb_func = self.cb_actuator
-		elif msg_type == "LaserScan": cb_func = self.cb_scanner
-		elif msg_type == "PointCloud2": cb_func = self.cb_point_cloud
-		elif msg_type == "Image": cb_func = self.cb_camera
-		else: raise NameError('Unknown message! No callback function defined for message type <<%s>>' %(msg_type))
+		else: raise NameError('Unknown msg_type! No callback function defined for message type <<%s>>' %(msg_type))
 		
 		sub_state_topic = rospy.Subscriber(str(topic), eval(msg_type), cb_func)
 		abort_time = rospy.Time.now() + rospy.Duration(self.wait_time)
@@ -241,7 +268,6 @@ class ComponentTestAll:
 							   '\nerrorCode: %s'
 							   %(next_goal, move_handle.get_error_code()))
 					self.log_diagnostics('base', message)
-					#raise NameError('Could not move base to %s. errorCode: %s' %(next_goal, move_handle.get_error_code()))
 				move_handle.wait()
 				i += 1
 			else: break
@@ -253,7 +279,6 @@ class ComponentTestAll:
 							   '\nerrorCode: %s'
 							   %(move_handle.get_error_code()))
 			self.log_diagnostics('base', message)
-			#raise NameError('Could not move base to test_0. errorCode: %s' %(move_handle.get_error_code()))
 		move_handle.wait()
 		
 	
@@ -272,7 +297,6 @@ class ComponentTestAll:
 			self.log_diagnostics(component['name'], message)
 			move_failed = True
 		move_handle.wait()
-		
 		
 		# Check if the target position is really reached
 		if not move_failed:
@@ -297,10 +321,6 @@ class ComponentTestAll:
 				message = ('Could not get the actual position of component <<%s>>.'
 						   '\nTarget position: <<%s>>' %(component['name'], target))
 				self.log_diagnostics(component['name'], message)
-<<<<<<< HEAD
-		
-=======
->>>>>>> 5ecab4f6d82b0495bf6d67b06faf8a00d8939d31
 				
 				
 				
@@ -310,7 +330,7 @@ class ComponentTestAll:
 	def log_diagnostics(self, component, message):
 		if self.diag_count != self.test_count:
 			self.log_file.write('======\n'
-								'TEST CYCLE #%s\n'
+								'TEST ROUND %s\n'
 								'======\n\n' %(self.test_count))
 			
 		tstamp = time.strftime('%H:%M:%S')
@@ -377,18 +397,6 @@ class ComponentTestAll:
 	def cb_actuator(self, msg):
 		self.actuator_position = msg.actual.positions
 		self.msg_received = True
-
-	def cb_scanner(self, msg):
-		self.scanner_msg = msg.ranges
-		self.msg_received = True
-
-	def cb_point_cloud(self, msg):
-		self.point_cloud_msg = msg.fields
-		self.msg_received = True
-
-	def cb_camera(self, msg):
-		self.camera_msg = msg.data
-		self.msg_received = True
 		
 	def cb_diagnostics(self, msg):
 		self.diagnostics_status = msg.status
@@ -401,4 +409,3 @@ if __name__ == "__main__":
 	except KeyboardInterrupt, e:
 		pass
 	print "exiting"
-
