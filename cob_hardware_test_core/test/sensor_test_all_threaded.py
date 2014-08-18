@@ -44,9 +44,8 @@ class SensorTest:
 		self.image_msg = Image
 		
 		self.msg_received = False
-		self.lock = threading.Lock()
 		self.test_finished = False
-		
+		self.lock = threading.Lock()
 		
 		### GET PARAMETERS ###
 		self.sensors = []
@@ -58,7 +57,7 @@ class SensorTest:
 				self.sensors[i]['fail'] = False
 				i+=1
 		except:
-			raise NameError('Could not find parameters under "/component_test/sensors"')
+			sys.exit()
 			
 		# Get test duration
 		try:
@@ -85,9 +84,13 @@ class SensorTest:
 		
 		for sensor in self.sensors:
 			self.log_file.write('  ' + sensor['name'] + '\n')
-		self.log_file.write('\n\nTEST LOG:\n========')
-		self.log_file.write('\n\n[INFO] [%s]'
-							'\n  Test started.\n\n\n' %(time.strftime('%H:%M:%S')))
+		self.log_file.write('\n\n'
+							'======\n'
+							'TEST LOG\n'
+							'======\n\n')
+		self.log_file.write('[INFO] [%s] [%s]'
+							'\n  Test started.\n\n\n' 
+							%(time.strftime('%H:%M:%S'), rospy.Time.now()))
 		
 		
 		self.starting_time = rospy.Time.now()
