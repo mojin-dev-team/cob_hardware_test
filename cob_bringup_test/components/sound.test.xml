@@ -15,6 +15,6 @@
     </node>    
     
 	<!-- perform test -->
-	<test test-name="test_say" pkg="cob_hardware_test" type="sound_test.py" name="cob_say" />
+	<test test-name="test_say" pkg="cob_hardware_test_core" type="sound_test.py" name="cob_say" />
 
 </launch>

@@ -2,6 +2,6 @@
 <launch>
 
 	<!-- perform test -->
-	<test test-name="test_light" pkg="cob_hardware_test" type="light_test.py" name="cob_light" />
+	<test test-name="test_light" pkg="cob_hardware_test_core" type="light_test.py" name="cob_light" />
 
 </launch>

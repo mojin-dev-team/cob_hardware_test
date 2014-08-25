@@ -51,7 +51,7 @@ class HzTest(unittest.TestCase):
 
     def test_hz(self):
         # Fetch parameters
-        cob_hardware_test_core = rospy.get_param('cob_hardware_test_core')   
+        cob_hardware_test_core = rospy.get_param('cob_hardware_test')   
         threads = []
         #start threads in loop
         for k, i in cob_hardware_test_core.iteritems():
