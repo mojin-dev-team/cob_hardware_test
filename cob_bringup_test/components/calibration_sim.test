@@ -2,12 +2,12 @@
 <launch>
 
 	<!-- start dialog service -->
-	<node pkg="cob_hardware_test" type="dialog.py" name="dialog_server"/>
+	<node pkg="cob_hardware_test_core" type="dialog.py" name="dialog_server"/>
 	<!-- bringup robot -->
 	<include file="$(find cob_bringup_sim)/launch/robot.launch" />
 	<!-- open rviz with configuration -->
 	<node pkg="rviz" type="rviz" name="$(anon rviz)" args="-d $(find cob_hardware_test)/config/calibration.vcg" respawn="false" output="screen" />
 	<!-- include test -->
-	<include file="$(find cob_hardware_test)/components/calibration.test.xml" />
+	<include file="$(find cob_bringup_test)/components/calibration.test.xml" />
 
 </launch>

@@ -4,6 +4,6 @@
 	<!-- bringup robot -->
 	<include file="$(find cob_bringup)/robot.launch" />
 	<!-- include auto test -->
-	<include file="$(find cob_hardware_test)/robots/$(env ROBOT)_auto.test.xml" />
+	<include file="$(find cob_bringup_test)/robots/$(env ROBOT)_auto.test.xml" />
 
 </launch>
