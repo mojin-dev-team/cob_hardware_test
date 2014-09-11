@@ -50,7 +50,7 @@ class SensorTest:
 		### GET PARAMETERS ###
 		self.sensors = []
 		try:
-			params = rospy.get_param('/component_test/sensors')
+			params = rospy.get_param('/component_test/components/sensors')
 			i=0
 			for k in params.keys():
 				self.sensors.append(params[k])

@@ -34,13 +34,13 @@
 
     <!-- include scripts -->
     <node name="component_test" pkg="cob_hardware_test_core" type="component_test_all.py" >
-        <rosparam command="load" file="$(find cob_bringup_test)/config/$(arg robot)/all_components_test.yaml" />
+        <rosparam command="load" ns="/component_test/components" file="$(find cob_bringup_test)/config/$(arg robot)/all_components_test.yaml" />
         <param name="test_duration" value="$(arg duration)" />
         <param name="result_dir" value="$(arg dir)" />
     </node>
 
     <node name="sensor_test" pkg="cob_hardware_test_core" type="sensor_test_all_threaded.py" >
-        <rosparam command="load" file="$(find cob_bringup_test)/config/$(arg robot)/all_components_test.yaml" />
+        <rosparam command="load" ns="/component_test/components" file="$(find cob_bringup_test)/config/$(arg robot)/all_components_test.yaml" />
         <param name="result_dir" value="$(arg dir)" />
     </node>
 
