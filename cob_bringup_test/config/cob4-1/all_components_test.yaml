@@ -2,11 +2,10 @@ base:
   goals:
     # Test goals [x,y,theta]
     test_0: [0, 0, 0]
-    test_1: [0.5, 0, 0]
-    test_2: [0.5, -0.5, 0]
-    test_3: [0, -0.5, 0]
-    #test_4: [1, -1, 0]
-
+    test_1: [0, 0, 0]
+    # Give duration in seconds
+  params:
+    max_duration: 0
 
 actuators:
 
@@ -16,7 +15,6 @@ actuators:
     default_target: "home"
     topic: /torso_controller/state
     msg_type: JointTrajectoryControllerState
-    error_range: 0.1
 
   head:
     name: "head"
@@ -24,7 +22,6 @@ actuators:
     default_target: "front"
     topic: /head_controller/state
     msg_type: JointTrajectoryControllerState
-    error_range: 0.1
 
   sensorring:
     name: "sensorring"
@@ -32,23 +29,20 @@ actuators:
     default_target: "front"
     topic: /sensorring_controller/state
     msg_type: JointTrajectoryControllerState
-    error_range: 0.1
 
   arm_left:
     name: "arm_left"
-    test_target: "front"
+    test_target: "folded"
     default_target: "home"
     topic: /arm_left_controller/state
     msg_type: JointTrajectoryControllerState
-    error_range: 0.1
 
   arm_right:
     name: "arm_right"
-    test_target: "front"
+    test_target: "folded"
     default_target: "home"
     topic: /arm_right_controller/state
     msg_type: JointTrajectoryControllerState
-    error_range: 0.1
     
 sensors:
 

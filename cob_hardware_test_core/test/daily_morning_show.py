@@ -2,6 +2,7 @@
 import roslib
 import sys
 import rospy
+import time
 
 from helper import ComponentTest
 
@@ -30,69 +31,69 @@ def run():
 		dialog_client(0, 'Release EM-stop and press ''OK''')
 		
 	# Initialize
-	test.log_file.write('\n[Initialize] [%s]' %(rospy.Time.now()))
-	if test.base_goals:
+	test.log_file.write('\n[INITIALIZE] [%s]' %(time.strftime('%H:%M:%S')))
+	if test.base_params:
 		test.log_file.write('\n  base: ')
 		if test.init_component('base'):
-			test.log_file.write('<<OK>>')
+			test.log_file.write('\t<<OK>>')
 		else:
-			test.log_file.write('<<FAIL>>')
+			test.log_file.write('\t<<FAIL>>')
 	
 	for component in test.actuators:
 		test.log_file.write('\n  %s: ' %(component['name']))
 		if test.init_component(component['name']):
-			test.log_file.write('<<OK>>')
+			test.log_file.write('\t<<OK>>')
 		else:
-			test.log_file.write('<<FAIL>>')
+			test.log_file.write('\t<<FAIL>>')
 	
 	#### MOVE TEST 1 ###
-	test.log_file.write('\n\n[Move_test_1] [%s]' %(rospy.Time.now()))
+	test.log_file.write('\n\n[MOVE_TEST_1] [%s]' %(time.strftime('%H:%M:%S')))
 	# Move base
 	test.log_file.write('\n  base: ')
-	if test.move_base_rel(test.base_goals):
-		test.log_file.write('<<OK>>')
+	if test.move_base_rel(test.base_params):
+		test.log_file.write('\t<<OK>>')
 	else:
-		test.log_file.write('<<FAIL>>')
+		test.log_file.write('\t<<FAIL>>')
 		test.get_diagnostics('base')
 	
 	# Move actuators
 	for component in test.actuators:
 		test.log_file.write('\n  %s: ' %(component['name']))
-		if test.move_actuator(component) and test.dialog(component['name'], component['test_target']):
-			test.log_file.write('<<OK>>')
+		if test.move_actuator_daily(component) and test.dialog(component['name'], component['test_target']):
+			test.log_file.write('\t<<OK>>')
 		else:
-			test.log_file.write('<<FAIL>>')
+			test.log_file.write('\t<<FAIL>>')
 			test.get_diagnostics(component['name'])
 	
 	
 	### RECOVER TEST ###
-	test.log_file.write('\n\n[Recover_test] [%s]' %(rospy.Time.now()))
+	test.log_file.write('\n\n[RECOVER_TEST] [%s]' %(time.strftime('%H:%M:%S')))
 	test.recover_test()
 	
 	
 	### MOVE TEST 2 ###
-	test.log_file.write('\n\n[Move_test_2] [%s]' %(rospy.Time.now()))
+	test.log_file.write('\n\n[MOVE_TEST_2] [%s]' %(time.strftime('%H:%M:%S')))
 	# Move base
 	test.log_file.write('\n  base: ')
-	if test.move_base_rel(test.base_goals):
-		test.log_file.write('<<OK>>')
+	if test.move_base_rel(test.base_params):
+		test.log_file.write('\t<<OK>>')
 	else:
-		test.log_file.write('<<FAIL>>')
+		test.log_file.write('\t<<FAIL>>')
 		test.get_diagnostics('base')
 	
 	# Move actuators
 	for component in test.actuators:
 		test.log_file.write('\n  %s: ' %(component['name']))
-		if test.move_actuator(component) and test.dialog(component['name'], component['test_target']):
-			test.log_file.write('<<OK>>')
+		if test.move_actuator_daily(component) and test.dialog(component['name'], component['test_target']):
+			test.log_file.write('\t<<OK>>')
 		else:
-			test.log_file.write('<<FAIL>>')
+			test.log_file.write('\t<<FAIL>>')
 			test.get_diagnostics(component['name'])
 	
 	
 	
 	# Sensor test
-	test.log_file.write('\n\n[Sensor_test] [%s]' %(rospy.Time.now()))
+	test.log_file.write('\n\n[SENSOR_TEST] [%s]' %(time.strftime('%H:%M:%S')))
 	
 	for sensor in test.sensors:
 		test.log_file.write('\n  %s: ' %(sensor['name']))

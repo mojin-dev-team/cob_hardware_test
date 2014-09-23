@@ -4,8 +4,9 @@
     <arg name="robot" default="$(optenv ROBOT !!NO_ROBOT_SET!!)"/>
     <arg name="sim" default="false" />
     <arg name="cob4-1-t1" value="cob4-1-t1" />
-    <arg name="duration" />
-    <arg name="dir" />
+    <arg name="max_duration" default="0"/>
+    <arg name="max_rounds" default="0"/>
+    <arg name="result_dir" />
 
 
     <!-- start dialog service -->
@@ -35,13 +36,14 @@
     <!-- include scripts -->
     <node name="component_test" pkg="cob_hardware_test_core" type="component_test_all.py" >
         <rosparam command="load" ns="/component_test/components" file="$(find cob_bringup_test)/config/$(arg robot)/all_components_test.yaml" />
-        <param name="test_duration" value="$(arg duration)" />
-        <param name="result_dir" value="$(arg dir)" />
+        <param name="test_duration" value="$(arg max_duration)" />
+        <param name="test_rounds" value="$(arg max_rounds)" />
+        <param name="result_dir" value="$(arg result_dir)" />
     </node>
 
     <node name="sensor_test" pkg="cob_hardware_test_core" type="sensor_test_all_threaded.py" >
         <rosparam command="load" ns="/component_test/components" file="$(find cob_bringup_test)/config/$(arg robot)/all_components_test.yaml" />
-        <param name="result_dir" value="$(arg dir)" />
+        <param name="result_dir" value="$(arg result_dir)" />
     </node>
 
 

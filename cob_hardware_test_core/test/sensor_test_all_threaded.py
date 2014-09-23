@@ -100,38 +100,18 @@ class SensorTest:
 	### RUN ###
 	def run(self):
 		
-		#rospy.sleep(5)
-		##############
 		if self.test_trigger():
-			
 			threads = []
 			for sensor in self.sensors:
-				
-				#Reset for each cycle:
 				self.message_received = False
-
-				#self._test_hz(test_name, topic, hz, hzerror, test_duration, wait_time)
-				#t = threading.Thread(self._test_hz(hz, hzerror, topic, test_duration, wait_time))
 				t = threading.Thread(target=self.test_sensor, args=(sensor['name'], sensor['topic'], sensor['msg_type']))
 				threads.append(t)
 				t.start()
-				
-			#for t in threads:
-			#	t.join()	
-			######################################
-			
-			
-		#duration = rospy.Time.now() + rospy.Duration(self.test_duration)
-		#while duration > rospy.Time.now():
-		#	rospy.sleep(0.1)
-		#self.test_finished = True
 		
 		while not self.test_finished:
 			if not self.test_trigger():
 				self.test_finished = True
 			rospy.sleep(0.1)
-		
-		
 		
 		rospy.sleep(5) # Let's wait to make sure that all the threads will be finished
 		self.log_file.write('[INFO] [%s] [%s]'
@@ -171,9 +151,6 @@ class SensorTest:
 				result.msg_received = False
 				self.write_log(name, 'Too much time passed since last message. Last msg received: %s Unsucbscribing and trying to subscribe again...' %result.msg_tstamp)
 				sub_state_topic.unregister()
-			
-			#if self.starting_time + rospy.Duration(10) > rospy.Time.now():
-			#	self.test_finished = True
 			
 			
 			

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import sys
 import time
+
 #import math
 
 # ROS imports
@@ -16,21 +17,22 @@ import rospy
 from helper import ComponentTest
 
 ## DONE:
-	## TODO: Check that all the parameters (targets, topic, etc..) are set properly for each component
-	## TODO: Check that at least one of the components (base, actuator) is received from param server
-	## TODO: Save log for 'Target position out of error range'
-	## TODO: Time limit for move_base function. Excecute sss.stop() if too much time passed
-	## TODO: Add not rospy.is_shutdown() condition to every loop
-	## TODO: Test summary (how many tests performed per component and how many fails etc..)
-	## TODO: Stop the test if actuator fails (after trying to recover)
+	## - Check that all the parameters (targets, topic, etc..) are set properly for each component
+	## - Check that at least one of the components (base, actuator) is received from param server
+	## - Save log for 'Target position out of error range'
+	## - Time limit for move_base function. Excecute sss.stop() if too much time passed
+	## - Add not rospy.is_shutdown() condition to every loop
+	## - Test summary (how many tests performed per component and how many fails etc..)
+	## - Stop the test if actuator fails (after trying to recover)
+	## - Change to seconds
+	## - Add summary of every component's fails and recovers
+	## - Add possibility of maximum rounds. At least one of these must be passed: max_time or max_rounds
+	## - Add init function to helper class
 
 ## UNDONE:
-	## TODO: Change to seconds
-	## TODO: Add summary of all components all fails and recovers
-	## TODO: Add possibility of maximum rounds. At least one of these must be passed: max_time or max_rounds
-	## TODO: Add init function to helper class
-
-
+	# -
+	
+	
 def run():
 	test = ComponentTest('long_time_test')
 	test.test_trigger_server()
@@ -52,30 +54,62 @@ def run():
 	
 	# Test loop
 	duration = rospy.Time.now() + rospy.Duration(test.test_duration)
-	while duration > rospy.Time.now() and not error and not test.toplevel_error:
-		test.log_file.write('\n\n\n[ROUND %s] [%s]' %(test_count, rospy.Time.now()))
-		
+	while rospy.Time.now() < duration and test_count < test.test_rounds and not error and not test.toplevel_error:
+		test.log_file.write('\n\n\n[ROUND %s] [%s]' %(test_count, time.strftime('%H:%M:%S')))
 		tts = rospy.Time.now()	# Get the starting time of the loop for logging purpose
 		
+		
 		# Move base
+		error_recover = False
 		if test.base_params:
-			
+			i = 0
 			ts = rospy.Time.now()
-			result, message = test.move_base(test.base_params)
-			test.log_duration(component['name'], ts)
 			
-			if not result:
-				message = ('Failed to move component <<base>>'
-							   '\nerrorCode: %s'
-							   %(component['name'], error_code))
-				test.log_diagnostics(message)
-				fail_diagnostics = test.get_diagnostics_agg()
-				error = True
-				break
-			if test.toplevel_error: break
+			while True:
+				next_goal = 'test_%s'%(i)
+				max_dur = test.base_params['max_duration']
+				
+				if next_goal in test.base_params:
+					result, message = test.move_base(next_goal, max_dur)
+					if not result:
+						test.log_duration('base', ts)
+						test.log_diagnostics(message)
+						if not error_recover:
+							test.log_diagnostics('Trying to recover all components and move the component again...')
+							if test.try_recover():
+								test.log_diagnostics('Recovered all components.')
+								ts = rospy.Time.now()
+								result, message = test.move_base(next_goal, max_dur)
+								if result:
+									test.base_params['recovered_tests'] += 1
+									error_recover = True
+								else:
+									test.log_duration('base', ts)
+									test.log_diagnostics(message)
+									test.log_diagnostics('Terminating test...')
+									fail_diagnostics = test.get_diagnostics_agg()
+									test.base_params['failed_tests'] += 1
+									error = True
+									break
+							else:
+								test.log_diagnostics('Could not recover components. Terminating test...')
+								error = True
+								break
+						else:
+							test.log_diagnostics('Terminating test...')
+							error = True
+							break
+							
+					if test.toplevel_error: break
+				else:
+					test.log_duration('base', ts)
+					break
+				i += 1
+					
+			test.base_params['performed_tests'] += 1
+		
 			
-			
-		# Move actuators	
+		# Move actuators
 		if test.actuators and not error and not test.toplevel_error:
 			for component in test.actuators:
 				
@@ -92,21 +126,19 @@ def run():
 						test.log_duration(component['name'], ts)
 						if result:
 							component['recovered_tests'] += 1
-							error_recover = True
 							error = False
 					if error == True:
 						test.log_diagnostics(message)
 						fail_diagnostics = test.get_diagnostics_agg()
+						component['failed_tests'] += 1
 						break
 				if test.toplevel_error: break
 				component['performed_tests'] += 1
 				
 		if not test.toplevel_error and not error:
 			test.log_duration('Total', tts)
+			test_count += 1
 			
-		test_count += 1
-		
-	
 	
 	
 	test.test_on = False
@@ -129,24 +161,24 @@ def run():
 	number_of_fails = 0
 	number_of_components = 0
 	for component in test.actuators:
-		if component['recovered_tests'] > 0:
+		if component['recovered_tests'] > 0 or component['failed_tests'] > 0:
 			number_of_fails += 1
 		number_of_components += 1
 	if test.base_params:
-		if test.base_params['recovered_tests'] > 0:
+		if test.base_params['recovered_tests'] > 0 or test.base_params['failed_tests'] > 0:
 			number_of_fails += 1
 		number_of_components += 1
 	
 	
 	
 	if test.toplevel_error or error:
-		test.log_file.write('\nTEST FAILED! \nTest has been terminated due to error!')
+		test.log_file.write('\nTEST FAILED! \nTest has been terminated due to following error: \n' + message)
 	elif number_of_fails > 0:
-		test.log_file.write('\nTEST FAILED! \nNot all components passed the test without errors!')
+		test.log_file.write('\nTEST FAILED! \nNot every component passed the test without errors!')
 	else:
 		test.log_file.write('\nTEST SUCCEEDED! \nAll components passed the test without errors.')
 	
-	test.log_file.write('\n\nNumber of performed test rounds: %s' %(test_count))
+	test.log_file.write('\n\nNumber of completely performed test rounds: %s' %(test_count))
 	number_of_fails = 0
 	number_of_components = 0
 	for component in test.actuators:
@@ -162,13 +194,13 @@ def run():
 	
 	test.log_file.write('\n\nNumber of performed tests: ')
 	if test.base_params:
-		test.log_file.write('\n  base: \t' + test.base_params['performed_tests'])
+		test.log_file.write('\n  base: \t%s' %(test.base_params['performed_tests']))
 	for component in test.actuators:
 		test.log_file.write('\n  %s: \t%s' %(component['name'], component['performed_tests']))
 	
 	test.log_file.write('\n\nNumber of failed but recovered and continued tests: ')
 	if test.base_params:
-		test.log_file.write('\n  base: \t' + test.base_params['recovered_tests'])
+		test.log_file.write('\n  base: \t%s' %(test.base_params['recovered_tests']))
 	for component in test.actuators:
 		test.log_file.write('\n  %s: \t%s' %(component['name'], component['recovered_tests']))
 	

@@ -6,6 +6,7 @@ import time
 import rospy
 import math
 import collections
+import signal
 
 # msg & srv imports
 from trajectory_msgs.msg import *
@@ -132,12 +133,17 @@ class ComponentTest:
 		
 		# Get base goals
 		try:
-			params_base = rospy.get_param('/component_test/components/base/goals')
-			self.base_params = params_base
+			params = rospy.get_param('/component_test/components/base/params')
+			params.update(rospy.get_param('/component_test/components/base/goals'))
+			self.base_params = params
 			self.base_params['performed_tests'] = 0
 			self.base_params['recovered_tests'] = 0
+			self.base_params['failed_tests'] = 0
 		except:
 			pass
+		
+		
+		
 			
 		# Get actuator parameters
 		try:
@@ -145,6 +151,7 @@ class ComponentTest:
 			for k in params_actuator.keys():
 				params_actuator[k]['performed_tests'] = 0
 				params_actuator[k]['recovered_tests'] = 0
+				params_actuator[k]['failed_tests'] = 0
 				self.actuators.append(params_actuator[k])
 		except:
 			pass
@@ -163,17 +170,33 @@ class ComponentTest:
 							'View the documentation to see how to define test-components.')
 		
 			
-		# Get test duration
+		# Get maximum test duration and rounds
+		self.test_duration = None
+		self.test_rounds = None
 		try:
 			self.test_duration = 60.0 * float(rospy.get_param('/component_test/test_duration'))
 		except:
-			raise NameError('Test duration not set or set improperly. Please give test duration in minutes as an integer.')
+			pass
+		try:
+			self.test_rounds = int(rospy.get_param('/component_test/test_rounds'))
+		except:
+			pass
+		if not self.test_duration and not self.test_rounds:
+			raise NameError('Both maximum duration and maximum test rounds are undefined!'
+							'\nPlease pass at least one of the two parameters. '
+							'\nMax duration must be given in minutes and max rounds as an integer.')
+		# if one of the duration-limiting parameters is not set, we set it to "infinite"
+		if self.test_duration == None or self.test_duration == 0:
+			self.test_duration = 1e100
+		if self.test_rounds == None or self.test_rounds == 0:
+			self.test_rounds = 1e100
+		
 		
 		# Get log-file directory
 		try:
 			log_dir = rospy.get_param('/component_test/result_dir')
 		except:
-			raise NameError('Test-result directory not set.')
+			raise NameError('Test-result directory is undefined.')
 		
 		
 		# Subscribe to toplevel-state topic
@@ -217,9 +240,9 @@ class ComponentTest:
 			self.print_topic('TEST LOG')
 			
 			#log starting time
-			self.log_file.write('\n[INFO] [%s] [%s]'
+			self.log_file.write('\n[INFO] [%s]'
 								'\n  Test started.' 
-								%(time.strftime('%H:%M:%S'), rospy.Time.now()))
+								%(time.strftime('%H:%M:%S')))
 	
 	
 	def init_component(self, component):
@@ -234,32 +257,46 @@ class ComponentTest:
 		# Move to test position
 		move_handle = self.sss.move(component['name'], component['test_target'])
 		if move_handle.get_state() != 3:
-			message = ('Failed to move component <<%s>> to target position'
-					   '\nerrorCode: %s'
+			message = ('Failed to move component <<%s>> to target position. ErrorCode: %s'
 					   %(component['name'], move_handle.get_error_code()))
 			return (False, message)
 		move_handle.wait()
 		if move_handle.get_error_code() != 0:
-			message = ('Error occurred while moving component <<%s>> to target position'
-					   '\nerrorCode: %s'
+			message = ('Error occurred while moving component <<%s>> to target position. ErrorCode: %s'
 					   %(component['name'], move_handle.get_error_code()))
 			return (False, message)
 		
 		# Move to default position
 		move_handle = self.sss.move(component['name'], component['default_target'])
 		if move_handle.get_state() != 3:
-			message = ('Failed to move component <<%s>> to default position'
-					   '\nerrorCode: %s'
+			message = ('Failed to move component <<%s>> to default position. ErrorCode: %s'
 					   %(component['name'], move_handle.get_error_code()))
 			return (False, message)
 		move_handle.wait()
 		if move_handle.get_error_code() != 0:
-			message = ('Error occurred while moving component <<%s>> to default position'
-					   '\nerrorCode: %s'
+			message = ('Error occurred while moving component <<%s>> to default position. ErrorCode: %s'
 					   %(component['name'], move_handle.get_error_code()))
 			return (False, message)
-		
 		return (True, 0)
+	
+	
+	def move_actuator_daily(self, component):
+		result = True
+		# Move to test position
+		move_handle = self.sss.move(component['name'], component['test_target'])
+		if move_handle.get_state() != 3:
+			result = False
+		move_handle.wait()
+		if move_handle.get_error_code() != 0:
+			result = False
+		# Move to default position
+		move_handle = self.sss.move(component['name'], component['default_target'])
+		if move_handle.get_state() != 3:
+			result = False
+		move_handle.wait()
+		if move_handle.get_error_code() != 0:
+			result = False
+		return result
 	
 	
 	def recover_test(self):
@@ -278,50 +315,39 @@ class ComponentTest:
 		for component in self.actuators:
 			self.log_file.write('\n  %s: ' %(component['name']))
 			if recover_handle[i].get_error_code() == 0:
-				self.log_file.write('<<OK>>')
+				self.log_file.write('\t<<OK>>')
 			else:
-				self.log_file.write('<<FAIL>>')
+				self.log_file.write('\t<<FAIL>>')
 			i+=1		
 	
 	
-	def move_base(self, base_params):
-		i = 0
-		while True:
-			next_goal = 'test_%s'%(i)
-			if next_goal in base_params:
-				move_handle = self.sss.move("base", base_params[next_goal])
-				if move_handle.get_state() != 3:
-					message = ('Could not move base to position <<%s>>'
-							   '\nerrorCode: %s'
-							   %(next_goal, move_handle.get_error_code()))
-					return (False, message)
-					
-				move_handle.wait()
-				
-				if move_handle.get_error_code() != 0:
-					message = ('Could not move base to position <<%s>>'
-							   '\nerrorCode: %s'
-							   %(next_goal, move_handle.get_error_code()))
-					return (False, message)
-				i += 1
-			else: break
-			
-		# Back to default position
-		move_handle = self.sss.move("base",base_params['test_0'])
-		if move_handle.get_state() != 3:
-			message = ('Could not move base to default position <<test_0>>'
-							   '\nerrorCode: %s'
-							   %(move_handle.get_error_code()))
-			return (False, message)
-			
-		move_handle.wait()	
+	def move_base(self, goal, duration):
 		
-		if move_handle.get_error_code() != 0:
-			message = ('Could not move base to default position <<test_0>>'
-					   '\nerrorCode: %s'
-					   %(next_goal, move_handle.get_error_code()))
-			return (False, message)	
-		return (True, None)
+		signal.signal(signal.SIGALRM, self.time_limit_handler)
+		signal.alarm(duration)
+		
+		try:
+			move_handle = self.sss.move("base", goal)
+			if move_handle.get_state() != 3:
+				message = ('Could not move <<base>> to position <<%s>>. ErrorCode: %s'
+						   %(goal, move_handle.get_error_code()))
+				signal.alarm(0)
+				return (False, message)
+			move_handle.wait()
+			if move_handle.get_error_code() != 0:
+				message = ('Could not move <<base>> to position <<%s>>. ErrorCode: %s'
+						   %(goal, move_handle.get_error_code()))
+				signal.alarm(0)
+				return (False, message)
+			signal.alarm(0)
+			return (True, 0)
+		except Exception, exc:
+			self.sss.stop('base')
+			message = ('Maximum duration <<%s>> seconds exceeded while trying to move component <<base>> to goal <<%s>>.' %(duration, goal))
+		signal.alarm(0)	
+		return (False, message)
+		
+		
 	
 	
 	def move_base_rel(self, goals):
@@ -444,11 +470,11 @@ class ComponentTest:
 
 
 	def log_diagnostics(self, message):
-			
-		rtstamp = rospy.Time.now()
-		self.log_file.write('\n\n  [FAIL] \t[%s]\n' %(rtstamp))
-		message = '    ' + message.replace("\n","\n  ")
-		self.log_file.write(message + '\n')
+		#rtstamp = rospy.Time.now()
+		#self.log_file.write('\n\n  [FAIL] \t[%s]\n' %(rtstamp))
+		#message = '    ' + message.replace("\n","\n  ")
+		#self.log_file.write(message + '\n')
+		self.log_file.write('\n    ' + message)
 	
 	
 	
@@ -475,7 +501,9 @@ class ComponentTest:
 	
 	
 	def log_duration(self, component, start_time):
-		duration = rospy.Time.now() - start_time
+		now = rospy.Time.now()
+		nseconds = now - start_time
+		duration = float(str(nseconds)) / 1000000000
 		self.log_file.write('\n  %s: \t[%s]' %(component, duration))
 		
 		
@@ -487,7 +515,8 @@ class ComponentTest:
 		s = rospy.Service('test_trigger', TestTrigger, self.handle_test_trigger)
 		
 	
-	
+	def time_limit_handler(self, signum, frame):
+		raise Exception("Time limit exceeded")
 	
 	
 	
