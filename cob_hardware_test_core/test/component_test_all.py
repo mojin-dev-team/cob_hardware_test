@@ -2,37 +2,14 @@
 import sys
 import time
 
-#import math
-
 # ROS imports
 import roslib
-#roslib.load_manifest('cob_hardware_test_core')
 import rospy
-
-# care-o-bot includes
-#from simple_script_server import *
-#from dialog_client import *
 
 
 from helper import ComponentTest
 
-## DONE:
-	## - Check that all the parameters (targets, topic, etc..) are set properly for each component
-	## - Check that at least one of the components (base, actuator) is received from param server
-	## - Save log for 'Target position out of error range'
-	## - Time limit for move_base function. Excecute sss.stop() if too much time passed
-	## - Add not rospy.is_shutdown() condition to every loop
-	## - Test summary (how many tests performed per component and how many fails etc..)
-	## - Stop the test if actuator fails (after trying to recover)
-	## - Change to seconds
-	## - Add summary of every component's fails and recovers
-	## - Add possibility of maximum rounds. At least one of these must be passed: max_time or max_rounds
-	## - Add init function to helper class
 
-## UNDONE:
-	# -
-	
-	
 def run():
 	test = ComponentTest('long_time_test')
 	test.test_trigger_server()
@@ -41,13 +18,17 @@ def run():
 	error = False
 	error_recover = False
 	
+	
+	# Init base
+	if test.base_params:
+		if not test.init_component('base'):
+			test.log_diagnostics('Failed to initialize component <<base>>')
+			error = True
+	
 	# Init components
 	for component in test.actuators:
 		if not test.init_component(component['name']):
-			message = ('Failed to initialize component <<%s>>'
-					   '\nerrorCode: %s'
-					   %(component['name'], handle.get_error_code))
-			test.log_diagnostics(component['name'], message)
+			test.log_diagnostics('Failed to initialize component <<%s>>')
 			error = True
 			break
 	
@@ -86,17 +67,14 @@ def run():
 								else:
 									test.log_duration('base', ts)
 									test.log_diagnostics(message)
-									test.log_diagnostics('Terminating test...')
 									fail_diagnostics = test.get_diagnostics_agg()
-									test.base_params['failed_tests'] += 1
 									error = True
 									break
 							else:
-								test.log_diagnostics('Could not recover components. Terminating test...')
+								test.log_diagnostics('Could not recover components.')
 								error = True
 								break
 						else:
-							test.log_diagnostics('Terminating test...')
 							error = True
 							break
 							
@@ -107,7 +85,7 @@ def run():
 				i += 1
 					
 			test.base_params['performed_tests'] += 1
-		
+			if error: test.base_params['failed_tests'] += 1
 			
 		# Move actuators
 		if test.actuators and not error and not test.toplevel_error:
@@ -139,7 +117,8 @@ def run():
 			test.log_duration('Total', tts)
 			test_count += 1
 			
-	
+	if error:
+		test.log_diagnostics('Terminating test...')
 	
 	test.test_on = False
 	
@@ -149,6 +128,7 @@ def run():
 		test.log_diagnostics(message)
 	
 	if test.toplevel_error or error:
+		test.print_topic('DIAGNOSTICS')
 		test.log_file.write(fail_diagnostics)
 	
 	
@@ -172,25 +152,26 @@ def run():
 	
 	
 	if test.toplevel_error or error:
-		test.log_file.write('\nTEST FAILED! \nTest has been terminated due to following error: \n' + message)
+		test.log_file.write('\nTEST FAILED! \n\nTest has been terminated due to following error: \n' + message)
 	elif number_of_fails > 0:
-		test.log_file.write('\nTEST FAILED! \nNot every component passed the test without errors!')
+		test.log_file.write('\nTEST FAILED! \n\nNot every component passed the test without errors!')
 	else:
-		test.log_file.write('\nTEST SUCCEEDED! \nAll components passed the test without errors.')
+		test.log_file.write('\nTEST WAS SUCCESSFUL! \n\nAll components passed the test without errors.')
 	
-	test.log_file.write('\n\nNumber of completely performed test rounds: %s' %(test_count))
+	test.log_file.write('\n\nNumber of performed test rounds: %s' %(test_count))
 	number_of_fails = 0
 	number_of_components = 0
 	for component in test.actuators:
-		if component['recovered_tests'] > 0:
+		if component['recovered_tests'] > 0 or component['failed_tests'] > 0:
 			number_of_fails += 1
 		number_of_components += 1
 	if test.base_params:
-		if test.base_params['recovered_tests'] > 0:
+		if test.base_params['recovered_tests'] > 0 or test.base_params['failed_tests'] > 0:
 			number_of_fails += 1
 		number_of_components += 1
-	test.log_file.write('\nIn total, %s out of %s components failed the test.' %(number_of_fails, number_of_components))
-	
+	if number_of_fails > 0:
+		test.log_file.write('\n%s out of %s components failed the test.' %(number_of_fails, number_of_components))
+		
 	
 	test.log_file.write('\n\nNumber of performed tests: ')
 	if test.base_params:

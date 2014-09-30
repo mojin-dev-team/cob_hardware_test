@@ -4,7 +4,7 @@
     <arg name="robot" default="$(optenv ROBOT !!NO_ROBOT_SET!!)"/>
     <arg name="sim" default="false" />
     <arg name="cob4-1-t1" value="cob4-1-t1"/>
-    <arg name="dir" default="/home/nhg-tl/Documents/DailyTest/results/" />
+    <arg name="result_dir" />
 
 
     <!-- start dialog service -->
@@ -21,17 +21,11 @@
         <arg name="robot" value="$(arg robot)" />
     </include>
 
-    <!--<group>
-        <machine name="cob4-1-t1" address="$(arg cob4-1-t1)" env-loader="$(find cob_bringup)/env.sh" default="true"/>
-		
-      <include file="$(find cob_bringup)/drivers/component_solo.launch" unless="$(arg sim)" />
-    </group>-->
-
 
     <!-- include test -->
     <node name="morning_show" pkg="cob_hardware_test_core" type="daily_morning_show.py" >
 	<rosparam command="load" ns="/morning_show/components" file="$(find cob_bringup_test)/config/$(arg robot)/daily_show_test.yaml" />
-        <param name="result_dir" value="$(arg dir)" type="str" />
+        <param name="result_dir" value="$(arg result_dir)" type="str" />
         <param name="sim" value="$(arg sim)" />
     </node>
 

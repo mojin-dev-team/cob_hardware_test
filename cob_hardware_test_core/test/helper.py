@@ -52,8 +52,7 @@ class ComponentTest:
 		### GET PARAMETERS ###
 		# Get base goals
 		try:
-			params_base = rospy.get_param('/morning_show/components/base/goals')
-			self.base_params = params_base
+			self.base_params = rospy.get_param('/morning_show/components/base/goals')
 		except:
 			pass
 			
@@ -64,7 +63,7 @@ class ComponentTest:
 				self.actuators.append(params_actuator[k])
 				
 		except:
-			raise NameError('##########')
+			pass
 		
 		# Get sensor parameters	
 		try:
@@ -91,8 +90,9 @@ class ComponentTest:
 		self.log_file = open(complete_name,'w')
 		
 		
-		self.log_file.write('Daily-show test %s' %(time.strftime('%d.%m.%Y')))
-		self.log_file.write('\n\nTested components:')
+		self.log_file.write('Daily-show test')
+		self.log_file.write('\n%s \n%s' %(time.strftime('%d.%m.%Y'), time.strftime('%H:%M:%S')))
+		self.print_topic('TESTED COMPONENTS')
 		if self.base_params:
 			self.log_file.write('\n  base')
 		if self.actuators:
@@ -142,9 +142,7 @@ class ComponentTest:
 		except:
 			pass
 		
-		
-		
-			
+
 		# Get actuator parameters
 		try:
 			params_actuator = rospy.get_param('/component_test/components/actuators')
@@ -216,10 +214,11 @@ class ComponentTest:
 			self.log_file = open(complete_name,'w')
 			
 			# Log all tested components
-			self.log_file.write('Component test %s' %(time.strftime('%d.%m.%Y')))
+			self.log_file.write('Long-term component test')
+			self.log_file.write('\n%s \n%s' %(time.strftime('%d.%m.%Y'), time.strftime('%H:%M:%S')))
 			self.print_topic('TESTED COMPONENTS')
 			if self.base_params:
-				self.log_file.write('\n  base\n')
+				self.log_file.write('\n  base')
 			if self.actuators:
 				for actuator in self.actuators:
 					self.log_file.write('\n  ' + actuator['name'])
@@ -239,10 +238,8 @@ class ComponentTest:
 			
 			self.print_topic('TEST LOG')
 			
-			#log starting time
-			self.log_file.write('\n[INFO] [%s]'
-								'\n  Test started.' 
-								%(time.strftime('%H:%M:%S')))
+			self.log_file.write('\n[<ROUND_NO.>] [<TIMESTAMP>]'
+								'\n  <COMPONENT> \t[<DURATION>]'
 	
 	
 	def init_component(self, component):
@@ -348,19 +345,18 @@ class ComponentTest:
 		return (False, message)
 		
 		
-	
-	
+		
 	def move_base_rel(self, goals):
 		i = 0
-		while True:
+		next_goal = 'test_%s'%(i)
+		while next_goal in goals:
+			move_handle = self.sss.move_base_rel('base', self.base_params[next_goal])
+			if move_handle.get_error_code() != 0 or not self.dialog('base', next_goal):
+				return False
+			i += 1
 			next_goal = 'test_%s'%(i)
-			move_handle = self.sss.move_base_rel('base', next_goal)
-			
-			if next_goal in goals:
-				if move_handle.get_error_code() != 0 or not self.dialog('base', next_goal):
-					return False
-				i += 1
-			else: return True
+		return True
+		
 	
 	
 	def check_em_stop(self):
@@ -479,13 +475,9 @@ class ComponentTest:
 	
 	
 	def get_diagnostics_agg(self):
-		
-		self.print_topic('DIAGNOSTICS')
-		### GET DIAGNOSTICS ###	
 		# Wait for the message
 		self.msg_diag_received = False
 		sub_diagnostics = rospy.Subscriber("/diagnostics_agg", DiagnosticArray, self.cb_diagnostics)
-		
 		abort_time = rospy.Time.now() + rospy.Duration(self.wait_time)
 		while not self.msg_diag_received and rospy.get_rostime() < abort_time:
 			rospy.sleep(0.1)
@@ -553,7 +545,7 @@ class ComponentTest:
 		
 	def cb_toplevel_state(self, msg):
 		self.toplevel_state = msg.level
-		if self.toplevel_state != 2:
-			self.toplevel_error = True
+		#if self.toplevel_state != 2: #needs to be tested on real hardware
+		#	self.toplevel_error = True
 		self.toplevel_state_received = True
 		

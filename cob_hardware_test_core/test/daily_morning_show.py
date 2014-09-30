@@ -6,21 +6,6 @@ import time
 
 from helper import ComponentTest
 
-
-
-# DONE:
-	# TODO: Implement error_code check for init and recover tests
-	# TODO: delete manual launch component
-	# TODO: Always use the diagnostics for errors and success cases
-	# TODO: Use the aggrigated diagnostics
-	# TODO: group all sensor tests
-	# TODO: add base test  (base_rel)
-	# TODO: add a dialog to ask the user if move was successful, also for the base
-	
-	
-# UNDONE:
-	# TODO: Combine check_sensor, check_msg etc...
-	# TODO: Move Init and other functions to helper class, except run
 	
 
 def run():
@@ -48,13 +33,14 @@ def run():
 	
 	#### MOVE TEST 1 ###
 	test.log_file.write('\n\n[MOVE_TEST_1] [%s]' %(time.strftime('%H:%M:%S')))
-	# Move base
-	test.log_file.write('\n  base: ')
-	if test.move_base_rel(test.base_params):
-		test.log_file.write('\t<<OK>>')
-	else:
-		test.log_file.write('\t<<FAIL>>')
-		test.get_diagnostics('base')
+	if test.base_params:
+		# Move base
+		test.log_file.write('\n  base: ')
+		if test.move_base_rel(test.base_params):
+			test.log_file.write('\t<<OK>>')
+		else:
+			test.log_file.write('\t<<FAIL>>')
+			test.get_diagnostics('base')
 	
 	# Move actuators
 	for component in test.actuators:
@@ -73,13 +59,14 @@ def run():
 	
 	### MOVE TEST 2 ###
 	test.log_file.write('\n\n[MOVE_TEST_2] [%s]' %(time.strftime('%H:%M:%S')))
-	# Move base
-	test.log_file.write('\n  base: ')
-	if test.move_base_rel(test.base_params):
-		test.log_file.write('\t<<OK>>')
-	else:
-		test.log_file.write('\t<<FAIL>>')
-		test.get_diagnostics('base')
+	if test.base_params:
+		# Move base
+		test.log_file.write('\n  base: ')
+		if test.move_base_rel(test.base_params):
+			test.log_file.write('\t<<OK>>')
+		else:
+			test.log_file.write('\t<<FAIL>>')
+			test.get_diagnostics('base')
 	
 	# Move actuators
 	for component in test.actuators:
