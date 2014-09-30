@@ -239,7 +239,7 @@ class ComponentTest:
 			self.print_topic('TEST LOG')
 			
 			self.log_file.write('\n[<ROUND_NO.>] [<TIMESTAMP>]'
-								'\n  <COMPONENT> \t[<DURATION>]'
+								'\n  <COMPONENT> \t[<DURATION>]')
 	
 	
 	def init_component(self, component):
