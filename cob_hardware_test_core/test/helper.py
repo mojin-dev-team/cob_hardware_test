@@ -318,12 +318,13 @@ class ComponentTest:
 			i+=1		
 	
 	
-	def move_base(self, goal, duration):
+	def move_base(self, goal_name, duration):
 		
 		signal.signal(signal.SIGALRM, self.time_limit_handler)
 		signal.alarm(duration)
 		
 		try:
+			goal = rospy.get_param('/component_test/components/base/goals/%s' %(goal_name))
 			move_handle = self.sss.move("base", goal)
 			if move_handle.get_state() != 3:
 				message = ('Could not move <<base>> to position <<%s>>. ErrorCode: %s'

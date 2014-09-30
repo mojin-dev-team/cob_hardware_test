@@ -2,10 +2,10 @@ base:
   goals:
     # Test goals [x,y,theta]
     test_0: [0, 0, 0]
-    test_1: [0, 0, 0]
+    test_1: [0.1, 0, 0]
   params:
-    # Give duration in minutes
-    max_duration: 0
+    # Give duration in seconds
+    max_duration: 30
 
 actuators:
 
