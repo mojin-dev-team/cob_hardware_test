@@ -1,4 +1,3 @@
-<?xml version="1.0"?>
 <package>
   <name>cob_hardware_test</name>
   <version>0.0.0</version>
@@ -10,7 +9,7 @@
 
   <maintainer email="nhg@ipa.fhg.de">Nadia Hammoudeh Garcia</maintainer> 
   <maintainer email="fmw@ipa.fhg.de">Florian Weisshardt</maintainer>
-  <author "nhg@ipa.fhg.de">Nadia Hammoudeh Garcia</author>
+  <author email="nhg@ipa.fhg.de">Nadia Hammoudeh Garcia</author>
 
   <buildtool_depend>catkin</buildtool_depend>
 
