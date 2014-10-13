@@ -1,5 +1,0 @@
-component: "torso"
-test_target: "front"
-default_target: "home"
-wait_time: 30.0
-error_range: 0.1

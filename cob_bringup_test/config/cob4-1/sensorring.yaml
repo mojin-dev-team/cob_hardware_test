@@ -1,5 +1,0 @@
-component: "sensorring"
-test_target: "left"
-default_target: "home"
-wait_time: 10.0
-error_range: 0.1

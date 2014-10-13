@@ -1,5 +1,0 @@
-component: arm
-test_target: pregrasp
-default_target: folded
-wait_time: 30.0
-error_range: 0.1

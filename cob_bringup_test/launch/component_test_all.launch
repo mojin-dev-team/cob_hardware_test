@@ -22,11 +22,6 @@
     <include file="$(find cob_bringup)/robot.launch" unless="$(arg sim)" >
         <arg name="robot" value="$(arg robot)" />
     </include>
-    <!--<group>
-        <machine name="cob4-1-t1" address="$(arg cob4-1-t1)" env-loader="$(find cob_bringup)/env.sh" default="true"/>
-		
-      <include file="$(find cob_bringup)/drivers/component_solo.launch" unless="$(arg sim)" />
-    </group>-->
 
     <!-- launch navigation -->
     <include file="$(find cob_navigation_global)/launch/2dnav_ros_dwa.launch" >
