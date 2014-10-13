@@ -1,5 +1,0 @@
-component: "sdh"
-test_target: "fist"
-default_target: "home"
-wait_time: 30.0
-error_range: 0.1

@@ -1,0 +1,70 @@
+base:
+  goals:
+    ## Test goals [x,y,theta]
+    test_0: [0.1, 0, 0]
+    test_1: [-0.1, 0, 0]
+
+
+actuators:
+
+  torso:
+    name: "torso"
+    test_target: "front_down"
+    default_target: "home"
+
+  head:
+    name: "head"
+    test_target: "front_down"
+    default_target: "front"
+
+  sensorring:
+    name: "sensorring"
+    test_target: "back"
+    default_target: "front"
+
+  arm_left:
+    name: "arm_left"
+    test_target: "folded"
+    default_target: "home"
+
+  arm_right:
+    name: "arm_right"
+    test_target: "folded"
+    default_target: "home"
+    
+sensors:
+
+  laser_front:
+    name: "laser_front"
+    topic: /scan_front
+    msg_type: LaserScan
+
+  laser_left:
+    name: "laser_left"
+    topic: /scan_left
+    msg_type: LaserScan
+
+  laser_right:
+    name: "laser_right"
+    topic: /scan_right
+    msg_type: LaserScan
+
+  torso_cam3d_left_depth_points:
+    name: "torso_cam3d_left_depth_points"
+    topic: /torso_cam3d_left/depth_registered/points
+    msg_type: PointCloud2
+
+  torso_cam3d_right_depth_points:
+    name: "torso_cam3d_right_depth_points"
+    topic: /torso_cam3d_right/depth_registered/points
+    msg_type: PointCloud2
+
+  torso_cam3d_left_rgb_image_raw:
+    name: "torso_cam3d_left_rgb_image_raw"
+    topic: /torso_cam3d_left/rgb/image_raw
+    msg_type: Image
+
+  torso_cam3d_right_rgb_image_raw:
+    name: "torso_cam3d_right_rgb_image_raw"
+    topic: /torso_cam3d_right/rgb/image_raw
+    msg_type: Image

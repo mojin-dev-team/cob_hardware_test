@@ -1,5 +1,0 @@
-component: "head" 
-test_target: "front"
-default_target: "back"
-wait_time: 10.0
-error_range: 0.1

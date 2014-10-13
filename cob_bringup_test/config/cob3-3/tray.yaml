@@ -1,5 +1,0 @@
-component: "tray"
-test_target: "up"
-default_target: "down"
-wait_time: 30.0
-error_range: 0.1
