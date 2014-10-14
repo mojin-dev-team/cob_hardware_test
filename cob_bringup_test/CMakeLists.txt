@@ -18,6 +18,7 @@ find_package(catkin REQUIRED)
 # all install targets should use catkin DESTINATION variables
 # See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
 
+catkin_package()
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 install(DIRECTORY config drivers launch tools 
