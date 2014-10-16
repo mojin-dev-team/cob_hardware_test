@@ -1,0 +1,24 @@
+<package>
+  <name>cob_hardware_test</name>
+  <version>0.0.0</version>
+  <description>The cob_hardware_test package</description>
+
+  <license>LGPL</license>
+
+  <url type="website">http://ros.org/wiki/cob_hardware_test</url>
+
+  <maintainer email="nhg@ipa.fhg.de">Nadia Hammoudeh Garcia</maintainer> 
+  <maintainer email="fmw@ipa.fhg.de">Florian Weisshardt</maintainer>
+  <author email="nhg@ipa.fhg.de">Nadia Hammoudeh Garcia</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>cob_bringup_test</run_depend>
+  <run_depend>cob_hardware_test_core</run_depend>
+
+
+  <export>
+    <metapackage/>
+  </export>
+</package>
+
