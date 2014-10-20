@@ -18,10 +18,8 @@ add_service_files(
   TestTrigger.srv
 )
 
-
 ## Generate added messages and services with any dependencies listed here
 generate_messages()
-
 
 install(PROGRAMS test/component_test_all.py test/component_test.py test/daily_morning_show.py test/helper.py test/joy_test.py test/sensor_test_all_threaded.py test/light_test.py test/sound_test.py test/tactile_test.py test/teleop_test.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}/test

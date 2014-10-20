@@ -12,9 +12,8 @@ import rospy
 
 # msg & srv imports
 from sensor_msgs.msg import *
-from pr2_controllers_msgs.msg import *
 from diagnostic_msgs.msg import *
-from cob_relayboard.msg import *
+from cob_msgs.msg import *
 from cob_hardware_test_core.srv import TestTrigger
 
 # care-o-bot includes
