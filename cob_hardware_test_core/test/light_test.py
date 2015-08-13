@@ -27,7 +27,8 @@ class HardwareTest(unittest.TestCase):
         self.change_light("blue")
         rospy.sleep(3.0)
         self.change_light("black")
-        self.assertTrue(dialog_client(1, 'Did I light up in red, green and blue?'))
+        #self.assertTrue(dialog_client(1, 'Did I light up in red, green and blue?'))
+        return dialog_client(1, 'Did I light up in red, green and blue?')
 
     def change_light(self,color):
         handle_light = self.sss.set_light(color)

@@ -5,11 +5,12 @@ import rospy
 import time
 
 from helper import ComponentTest
-
+#from light_test import HardwareTest
 	
 
 def run():
 	test = ComponentTest('daily_morning_show')
+	#light_test = HardwareTest('daily_morning_show_lights')
 	
 	# Check that em_stop is not pressed
 	while test.check_em_stop():
@@ -31,6 +32,8 @@ def run():
 		else:
 			test.log_file.write('\t<<FAIL>>')
 	
+	rospy.sleep(1)
+	
 	#### MOVE TEST 1 ###
 	test.log_file.write('\n\n[MOVE_TEST_1] [%s]' %(time.strftime('%H:%M:%S')))
 	if test.base_params:
@@ -49,8 +52,16 @@ def run():
 			test.log_file.write('\t<<OK>>')
 		else:
 			test.log_file.write('\t<<FAIL>>')
-			test.get_diagnostics(component['name'])
-	
+			test.get_diagnostics(component['name'])	
+					
+	# Change light #TODO
+	if False:
+		test.log_file.write('\n LEDs:')
+		if light_test.test_set_light():
+			test.log_file.write('\t<<OK>>')
+		else:
+			test.log_file.write('\t<<FAIL>>')
+
 	
 	### RECOVER TEST ###
 	test.log_file.write('\n\n[RECOVER_TEST] [%s]' %(time.strftime('%H:%M:%S')))
@@ -84,6 +95,7 @@ def run():
 	
 	for sensor in test.sensors:
 		test.log_file.write('\n  %s: ' %(sensor['name']))
+		#rospy.sleep(0.5)
 		if test.check_sensor(sensor['topic'], sensor['msg_type']):
 			test.log_file.write('<<OK>>')
 		else:

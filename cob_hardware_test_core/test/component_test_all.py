@@ -22,7 +22,10 @@ def run():
 	message= " "
 
     # Check if the robot is running as a simulation
-	is_sim = dialog_client(1, 'Is the robot running as a simulation?')
+	#is_sim = dialog_client(1, 'Is the robot running as a simulation?')
+	is_sim = False
+	# Test base?!
+	test_base = True
 	
 	if not is_sim :	
 		# Init base
@@ -47,8 +50,8 @@ def run():
 		
 		
 		# Move base
-		error_recover = False
-		if test.base_params and not is_sim:
+		error_recover = False		
+		if test.base_params and not is_sim and test_base:
 			i = 0
 			ts = rospy.Time.now()
 			
