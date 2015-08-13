@@ -324,8 +324,7 @@ class ComponentTest:
 		
 		try:
 			goal = rospy.get_param('/component_test/components/base/goals/%s' %(goal_name))
-			#move_handle = self.sss.move("base", goal)
-			move_handle = self.sss.move_base_rel("base",goal)
+			move_handle = self.sss.move("base", goal)
 			if move_handle.get_state() != 3:
 				message = ('Could not move <<base>> to position <<%s>>. ErrorCode: %s'
 						   %(goal, move_handle.get_error_code()))
@@ -352,7 +351,8 @@ class ComponentTest:
 		next_goal = 'test_%s'%(i)
 		while next_goal in goals:
 			move_handle = self.sss.move_base_rel('base', self.base_params[next_goal])
-			if move_handle.get_error_code() != 0 or not self.dialog('base', next_goal):
+			#if move_handle.get_error_code() != 0 or not self.dialog('base', next_goal):
+			if move_handle.get_error_code() != 0:
 				return False
 			i += 1
 			next_goal = 'test_%s'%(i)
@@ -427,32 +427,63 @@ class ComponentTest:
 		abort_time = rospy.Time.now() + rospy.Duration(self.wait_time_diag)
 		while not self.msg_diag_received and rospy.get_rostime() < abort_time:
 			rospy.sleep(0.1)
-		
+
 		if self.msg_diag_received:
 			# Get diagnostics from /diagnostics topic
+			# diagnostics-name is hardcoded, only for Cob4
 			if component == 'base':
-				name = '%s_controller' %(component)
+				name_array = '%s_controller' %(component)
+			if component == 'torso':
+				name_array = ['torso/torso_driver: chain','torso/torso_driver: torso_2_joint','torso/torso_driver: torso_3_joint']
 			else:
-				name = '%s_driver' %(component)
-				#name = '%s/%s_driver' %(component,component)
-				#TODO Sensorring diagnostics
-			diag_name = ""
-			abort_time = rospy.Time.now() + rospy.Duration(self.wait_time_diag)
-			while diag_name != name and rospy.get_rostime() < abort_time:
-				diagnostics = str(self.diagnostics_status)
-				diag_name = diagnostics.replace('/','')
-				diag_name = (diag_name.split('name: ', 1)[1]).split('\n',1)[0]
-			sub_diagnostics.unregister()
+				name_array = ['%s_driver' %(component)]
 			
-			if diag_name == name:
-				diagnostics = diagnostics.replace('[','')
-				diagnostics = diagnostics.replace(']','')
-				diagnostics = '      ' + diagnostics.replace('\n','\n      ')
-				self.log_file.write('\n' + diagnostics)
-			else:
-				self.log_file.write('\n      No diagnostics found by name <<%s>>' %(name))
+			for name in name_array:
+				diag_name = ""
+				abort_time = rospy.Time.now() + rospy.Duration(self.wait_time_diag)
+				while diag_name != name and rospy.get_rostime() < abort_time:
+					diagnostics = str(self.diagnostics_status)
+					diag_name = diagnostics.replace('/','')
+					diag_name = (diag_name.split('name: ', 1)[1]).split('\n',1)[0]
+				sub_diagnostics.unregister()
+			
+				if diag_name == name:
+					diagnostics = diagnostics.replace('[','')
+					diagnostics = diagnostics.replace(']','')
+					diagnostics = '      ' + diagnostics.replace('\n','\n      ')
+					self.log_file.write('\n' + diagnostics)
+				else:
+					self.log_file.write('\n      No diagnostics found by name <<%s>>' %(name))
 		else:
 			self.log_file.write('\n      Could not subscribe to /diagnostics topic')
+		
+#		if self.msg_diag_received:
+#			# Get diagnostics from /diagnostics topic
+#			if component == 'base':
+#				name = '%s_controller' %(component)
+#			else:
+#				name = '%s' %(component)
+#				#name = '%s/%s_driver' %(component,component)
+#				#TODO Sensorring diagnostics
+#			if component == 'torso':
+#				name = 'light_torso'
+#			diag_name = ""
+#			abort_time = rospy.Time.now() + rospy.Duration(self.wait_time_diag)
+#			while diag_name != name and rospy.get_rostime() < abort_time:
+#				diagnostics = str(self.diagnostics_status)
+#				diag_name = diagnostics.replace('/','')
+#				diag_name = (diag_name.split('name: ', 1)[1]).split('\n',1)[0]
+#			sub_diagnostics.unregister()
+#			
+#			if diag_name == name:
+#				diagnostics = diagnostics.replace('[','')
+#				diagnostics = diagnostics.replace(']','')
+#				diagnostics = '      ' + diagnostics.replace('\n','\n      ')
+#				self.log_file.write('\n' + diagnostics)
+#			else:
+#				self.log_file.write('\n      No diagnostics found by name <<%s>>' %(name))
+#		else:
+#			self.log_file.write('\n      Could not subscribe to /diagnostics topic')
 	
 	
 	

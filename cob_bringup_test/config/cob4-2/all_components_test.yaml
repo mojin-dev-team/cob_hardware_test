@@ -1,8 +1,8 @@
 base:
   goals:
     # Test goals [x,y,theta]
-    test_0: [0, 0, 0.3]
-    test_1: [0, 0, -0.3]
+    test_0: [0.1, 0, 0]
+    test_1: [-0.1, 0, 0]
   params:
     # Give duration in seconds
     max_duration: 30

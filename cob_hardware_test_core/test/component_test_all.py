@@ -20,12 +20,11 @@ def run():
 	error_recover = False
 	fail_diagnostics = " "
 	message= " "
+	i = 0
 
     # Check if the robot is running as a simulation
 	#is_sim = dialog_client(1, 'Is the robot running as a simulation?')
 	is_sim = False
-	# Test base?!
-	test_base = True
 	
 	if not is_sim :	
 		# Init base
@@ -50,32 +49,33 @@ def run():
 		
 		
 		# Move base
+		#TODO Move base_rel
 		error_recover = False		
-		if test.base_params and not is_sim and test_base:
-			i = 0
+		if test.base_params and not is_sim:
+			#i = 0
+			
 			ts = rospy.Time.now()
 			
 			while True:
 				next_goal = 'test_%s'%(i)
-				max_dur = test.base_params['max_duration']
 				
 				if next_goal in test.base_params:
-					result, message = test.move_base(next_goal, max_dur)
+					result = test.move_base_rel(next_goal)
 					if not result:
 						test.log_duration('base', ts)
-						test.log_diagnostics(message)
+						test.log_diagnostics('Relative base movement failed')
 						if not error_recover:
 							test.log_diagnostics('Trying to recover all components and move the component again...')
 							if test.try_recover():
 								test.log_diagnostics('Recovered all components.')
 								ts = rospy.Time.now()
-								result, message = test.move_base(next_goal, max_dur)
+								result = test.move_base_rel(next_goal)
 								if result:
 									test.base_params['recovered_tests'] += 1
 									error_recover = True
 								else:
 									test.log_duration('base', ts)
-									test.log_diagnostics(message)
+									test.log_diagnostics('Relative base movement still failing after recover')
 									fail_diagnostics = test.get_diagnostics_agg()
 									error = True
 									break
@@ -92,6 +92,9 @@ def run():
 					test.log_duration('base', ts)
 					break
 				i += 1
+				# switches between the two move_base_rel goals
+				if i > 1:
+					i = 0;
 					
 			test.base_params['performed_tests'] += 1
 			if error: test.base_params['failed_tests'] += 1
