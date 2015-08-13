@@ -8,6 +8,7 @@ import rospy
 
 
 from helper import ComponentTest
+from dialog_client import *
 
 
 def run():
@@ -17,20 +18,25 @@ def run():
 	test_count = 0
 	error = False
 	error_recover = False
+	fail_diagnostics = " "
+	message= " "
+
+    # Check if the robot is running as a simulation
+	is_sim = dialog_client(1, 'Is the robot running as a simulation?')
 	
+	if not is_sim :	
+		# Init base
+		if test.base_params:
+			if not test.init_component('base'):
+				test.log_diagnostics('Failed to initialize component <<base>>')
+				error = True
 	
-	# Init base
-	if test.base_params:
-		if not test.init_component('base'):
-			test.log_diagnostics('Failed to initialize component <<base>>')
-			error = True
-	
-	# Init components
-	for component in test.actuators:
-		if not test.init_component(component['name']):
-			test.log_diagnostics('Failed to initialize component <<%s>>')
-			error = True
-			break
+		# Init components
+		for component in test.actuators:
+			if not test.init_component(component['name']):
+				test.log_diagnostics('Failed to initialize component <<%s>>')
+				error = True
+				break
 	
 	
 	# Test loop
@@ -42,7 +48,7 @@ def run():
 		
 		# Move base
 		error_recover = False
-		if test.base_params:
+		if test.base_params and not is_sim:
 			i = 0
 			ts = rospy.Time.now()
 			
@@ -136,7 +142,10 @@ def run():
 	
 	### PRINT SUMMARY ###
 	
-	test.print_topic('SUMMARY')
+	if is_sim:
+		test.print_topic('SUMMARY(Simulation)')
+	else:
+		test.print_topic('SUMMARY')
 	
 	number_of_fails = 0
 	number_of_components = 0

@@ -85,7 +85,7 @@ class ComponentTest:
 			raise NameError('Test-result directory not set.')
 			
 		# Create and prepare logfile
-		complete_name = '%s/daily_show_results_%s.txt' %(log_dir, time.strftime("%Y%m%d"))
+		complete_name = '%s/daily_show_results_%s.txt' %(log_dir, time.strftime("%Y%m%d_%H-%M"))
 		self.log_file = open(complete_name,'w')
 		
 		
@@ -209,7 +209,7 @@ class ComponentTest:
 		
 		# Create and prepare log file		
 		if self.base_params or self.actuators:
-			complete_name = '%s/component_test_results_%s.txt' %(log_dir, time.strftime("%Y%m%d"))
+			complete_name = '%s/component_test_results_%s.txt' %(log_dir, time.strftime("%Y%m%d_%H-%M"))
 			self.log_file = open(complete_name,'w')
 			
 			# Log all tested components
