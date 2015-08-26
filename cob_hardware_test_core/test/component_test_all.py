@@ -23,8 +23,8 @@ def run():
 	i = 0
 
     # Check if the robot is running as a simulation
-	#is_sim = dialog_client(1, 'Is the robot running as a simulation?')
-	is_sim = False
+	is_sim = dialog_client(1, 'Is the robot running as a simulation? \n (No base, no torso, no recovery)')
+	#is_sim = False
 	
 	if not is_sim :	
 		# Init base
@@ -66,7 +66,7 @@ def run():
 						test.log_diagnostics('Relative base movement failed')
 						if not error_recover:
 							test.log_diagnostics('Trying to recover all components and move the component again...')
-							if test.try_recover():
+							if not is_sim and test.try_recover():
 								test.log_diagnostics('Recovered all components.')
 								ts = rospy.Time.now()
 								result = test.move_base_rel(next_goal)
@@ -76,18 +76,22 @@ def run():
 								else:
 									test.log_duration('base', ts)
 									test.log_diagnostics('Relative base movement still failing after recover')
+									if is_sim: test.log_diagnostics('Simulation cannot recover anyway!')
 									fail_diagnostics = test.get_diagnostics_agg()
 									error = True
-									break
+									#break #TODO Check if failed test is logged in file as failed
 							else:
 								test.log_diagnostics('Could not recover components.')
+								if is_sim: test.log_diagnostics('Simulation cannot recover anyway!')
 								error = True
-								break
+								#break #TODO Check if failed test is logged in file as failed
 						else:
 							error = True
-							break
+							#break #TODO Check if failed test is logged in file as failed
 							
-					if test.toplevel_error: break
+					if test.toplevel_error: 
+						test.log_diagnostics('TopLevel_Error occured during test with component <<base>>.')
+						#break
 				else:
 					test.log_duration('base', ts)
 					break
@@ -100,48 +104,53 @@ def run():
 			if error: test.base_params['failed_tests'] += 1
 			
 		# Move actuators
-		if test.actuators and not error and not test.toplevel_error:
+		if test.actuators: #and not error and not test.toplevel_error:
 			for component in test.actuators:
+				if component['name'] == 'torso' and is_sim:
+					test.log_diagnostics('Not testing <<torso> due to simulation.')
+				else:
+					ts = rospy.Time.now()
+					result, message = test.move_actuator(component)
+					test.log_duration(component['name'], ts)
 				
-				ts = rospy.Time.now()
-				result, message = test.move_actuator(component)
-				test.log_duration(component['name'], ts)
-				
-				if not result:
-					error = True
-					if test.try_recover():
-						test.log_diagnostics('Fail occurred while moving component <<%s>>. Recovered all components and trying to move the component again...' %(component['name']))
-						ts = rospy.Time.now()
-						result, message = test.move_actuator(component)
-						test.log_duration(component['name'], ts)
-						if result:
-							component['recovered_tests'] += 1
-							error = False
-					if error == True:
-						test.log_diagnostics(message)
-						fail_diagnostics = test.get_diagnostics_agg()
-						component['failed_tests'] += 1
-						break
-				if test.toplevel_error: break
-				component['performed_tests'] += 1
+					if not result:
+						error = True
+						if not is_sim and test.try_recover():
+							test.log_diagnostics('Fail occurred while moving component <<%s>>. Recovered all components and trying to move the component again...' %(component['name']))
+							ts = rospy.Time.now()
+							result, message = test.move_actuator(component)
+							test.log_duration(component['name'], ts)
+							if result:
+								component['recovered_tests'] += 1
+								error = False
+						if error == True:
+							test.log_diagnostics(message)
+							fail_diagnostics = test.get_diagnostics_agg()
+							component['failed_tests'] += 1
+							#break #TODO Check if failed test is logged in file as failed
+							test.log_diagnostics('Error occured during test with component <<%s>>.' %(component['name']))
+					if test.toplevel_error: 
+						#break #TODO Check if failed test is logged in file as failed
+						test.log_diagnostics('TopLevel_Error occured during test with component <<%s>>.' %(component['name']))
+					component['performed_tests'] += 1
 				
 		if not test.toplevel_error and not error:
 			test.log_duration('Total', tts)
 			test_count += 1
 			
-	if error:
-		test.log_diagnostics('Terminating test...')
+	#if error:
+	#	test.log_diagnostics('Error occured, trying to move on...')
 	
-	test.test_on = False
+	#test.test_on = False
 	
-	if test.toplevel_error and not error:
-		message = ('Test has been terminated due to toplevel_state error!'
-				   '\nToplevel_state: <<%s>>' %(test.toplevel_state))
-		test.log_diagnostics(message)
+	#if test.toplevel_error and not error:
+	#	message = ('A top level error occured during the test.'
+	#			   '\nToplevel_state: <<%s>>' %(test.toplevel_state))
+	#	test.log_diagnostics(message)
 	
-	if test.toplevel_error or error:
-		test.print_topic('DIAGNOSTICS')
-		test.log_file.write(fail_diagnostics)
+	#if test.toplevel_error or error:
+	#	test.print_topic('DIAGNOSTICS')
+	#	test.log_file.write(fail_diagnostics)
 	
 	
 	

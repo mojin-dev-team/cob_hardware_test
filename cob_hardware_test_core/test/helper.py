@@ -431,12 +431,13 @@ class ComponentTest:
 		if self.msg_diag_received:
 			# Get diagnostics from /diagnostics topic
 			# diagnostics-name is hardcoded, only for Cob4
+            #TODO
 			if component == 'base':
 				name_array = '%s_controller' %(component)
 			if component == 'torso':
 				name_array = ['torso/torso_driver: chain','torso/torso_driver: torso_2_joint','torso/torso_driver: torso_3_joint']
 			else:
-				name_array = ['%s_driver' %(component)]
+				name_array = ['%s/%s_driver' %(component,component)]
 			
 			for name in name_array:
 				diag_name = ""
