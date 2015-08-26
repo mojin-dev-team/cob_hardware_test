@@ -444,8 +444,15 @@ class ComponentTest:
 				abort_time = rospy.Time.now() + rospy.Duration(self.wait_time_diag)
 				while diag_name != name and rospy.get_rostime() < abort_time:
 					diagnostics = str(self.diagnostics_status)
+					print(diagnostics)
+
+					#XXX
+					#for status in self.diagnostics_status.status:
+					#diag_name = status.message.replace('/','')
+
 					diag_name = diagnostics.replace('/','')
 					diag_name = (diag_name.split('name: ', 1)[1]).split('\n',1)[0]
+					print(diag_name)
 				sub_diagnostics.unregister()
 			
 				if diag_name == name:
@@ -458,35 +465,6 @@ class ComponentTest:
 		else:
 			self.log_file.write('\n      Could not subscribe to /diagnostics topic')
 		
-#		if self.msg_diag_received:
-#			# Get diagnostics from /diagnostics topic
-#			if component == 'base':
-#				name = '%s_controller' %(component)
-#			else:
-#				name = '%s' %(component)
-#				#name = '%s/%s_driver' %(component,component)
-#				#TODO Sensorring diagnostics
-#			if component == 'torso':
-#				name = 'light_torso'
-#			diag_name = ""
-#			abort_time = rospy.Time.now() + rospy.Duration(self.wait_time_diag)
-#			while diag_name != name and rospy.get_rostime() < abort_time:
-#				diagnostics = str(self.diagnostics_status)
-#				diag_name = diagnostics.replace('/','')
-#				diag_name = (diag_name.split('name: ', 1)[1]).split('\n',1)[0]
-#			sub_diagnostics.unregister()
-#			
-#			if diag_name == name:
-#				diagnostics = diagnostics.replace('[','')
-#				diagnostics = diagnostics.replace(']','')
-#				diagnostics = '      ' + diagnostics.replace('\n','\n      ')
-#				self.log_file.write('\n' + diagnostics)
-#			else:
-#				self.log_file.write('\n      No diagnostics found by name <<%s>>' %(name))
-#		else:
-#			self.log_file.write('\n      Could not subscribe to /diagnostics topic')
-	
-	
 	
 	def try_recover(self):
 		recover_handle = []

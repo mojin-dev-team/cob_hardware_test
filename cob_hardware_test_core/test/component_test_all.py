@@ -43,7 +43,7 @@ def run():
 	
 	# Test loop
 	duration = rospy.Time.now() + rospy.Duration(test.test_duration)
-	while rospy.Time.now() < duration and test_count < test.test_rounds and not error and not test.toplevel_error:
+	while rospy.Time.now() < duration and test_count < test.test_rounds: #and not error and not test.toplevel_error:
 		test.log_file.write('\n\n\n[ROUND %s] [%s]' %(test_count, time.strftime('%H:%M:%S')))
 		tts = rospy.Time.now()	# Get the starting time of the loop for logging purpose
 		
@@ -79,6 +79,7 @@ def run():
 									if is_sim: test.log_diagnostics('Simulation cannot recover anyway!')
 									fail_diagnostics = test.get_diagnostics_agg()
 									error = True
+									test.log_file.write(fail_diagnostics)
 									#break #TODO Check if failed test is logged in file as failed
 							else:
 								test.log_diagnostics('Could not recover components.')
@@ -96,9 +97,6 @@ def run():
 					test.log_duration('base', ts)
 					break
 				i += 1
-				# switches between the two move_base_rel goals
-				if i > 1:
-					i = 0;
 					
 			test.base_params['performed_tests'] += 1
 			if error: test.base_params['failed_tests'] += 1
@@ -129,9 +127,12 @@ def run():
 							component['failed_tests'] += 1
 							#break #TODO Check if failed test is logged in file as failed
 							test.log_diagnostics('Error occured during test with component <<%s>>.' %(component['name']))
+							test.log_file.write(fail_diagnostics)
 					if test.toplevel_error: 
 						#break #TODO Check if failed test is logged in file as failed
-						test.log_diagnostics('TopLevel_Error occured during test with component <<%s>>.' %(component['name']))
+						message = ('A top level error occured during the test.'
+				   					'\nToplevel_state: <<%s>>' %(test.toplevel_state))
+						test.log_diagnostics(message)
 					component['performed_tests'] += 1
 				
 		if not test.toplevel_error and not error:
@@ -175,9 +176,10 @@ def run():
 	
 	
 	
-	if test.toplevel_error or error:
-		test.log_file.write('\nTEST FAILED! \n\nTest has been terminated due to following error: \n' + message)
-	elif number_of_fails > 0:
+	#if test.toplevel_error or error:
+	#	test.log_file.write('\nTEST FAILED! \n\nTest has been terminated due to following error: \n' + message)
+	#elseif number_of_fails > 0:
+	if number_of_fails > 0:
 		test.log_file.write('\nTEST FAILED! \n\nNot every component passed the test without errors!')
 	else:
 		test.log_file.write('\nTEST WAS SUCCESSFUL! \n\nAll components passed the test without errors.')
