@@ -430,38 +430,61 @@ class ComponentTest:
 
 		if self.msg_diag_received:
 			# Get diagnostics from /diagnostics topic
-			# diagnostics-name is hardcoded, only for Cob4
-            #TODO
-			if component == 'base':
-				name_array = '%s_controller' %(component)
-			if component == 'torso':
-				name_array = ['torso/torso_driver: chain','torso/torso_driver: torso_2_joint','torso/torso_driver: torso_3_joint']
-			else:
-				name_array = ['%s/%s_driver' %(component,component)]
-			
-			for name in name_array:
-				diag_name = ""
-				abort_time = rospy.Time.now() + rospy.Duration(self.wait_time_diag)
-				while diag_name != name and rospy.get_rostime() < abort_time:
+			diag_name = ""
+			abort_time = rospy.Time.now() + rospy.Duration(self.wait_time_diag)
+			kill_loop = False
+			while not kill_loop and rospy.get_rostime() < abort_time:
 					diagnostics = str(self.diagnostics_status)
 					print(diagnostics)
 
-					#XXX
-					#for status in self.diagnostics_status.status:
-					#diag_name = status.message.replace('/','')
+					for status in self.diagnostics_status.status:
+						diag_name = status.message.replace('/','')
 
 					diag_name = diagnostics.replace('/','')
 					diag_name = (diag_name.split('name: ', 1)[1]).split('\n',1)[0]
 					print(diag_name)
 				sub_diagnostics.unregister()
 			
-				if diag_name == name:
+				#if diag_name contains component as string:
+				if component in diag_name:
 					diagnostics = diagnostics.replace('[','')
 					diagnostics = diagnostics.replace(']','')
 					diagnostics = '      ' + diagnostics.replace('\n','\n      ')
 					self.log_file.write('\n' + diagnostics)
+					kill_loop = True
 				else:
-					self.log_file.write('\n      No diagnostics found by name <<%s>>' %(name))
+					self.log_file.write('\n      No diagnostics found by name <<%s>>' %(component))
+#			if component == 'base':
+#				name_array = '%s_controller' %(component)
+#			if component == 'torso':
+#				name_array = ['torso/torso_driver: chain','torso/torso_driver: torso_2_joint','torso/torso_driver: torso_3_joint']
+#			else:
+#				name_array = ['%s/%s_driver' %(component,component)]
+#			
+#			for name in name_array:
+#				diag_name = ""
+#				abort_time = rospy.Time.now() + rospy.Duration(self.wait_time_diag)
+#				while diag_name != name and rospy.get_rostime() < abort_time:
+#					diagnostics = str(self.diagnostics_status)
+#					print(diagnostics)
+#
+#					#XXX
+#					#for status in self.diagnostics_status.status:
+#					#diag_name = status.message.replace('/','')
+#
+#					diag_name = diagnostics.replace('/','')
+#					diag_name = (diag_name.split('name: ', 1)[1]).split('\n',1)[0]
+#					print(diag_name)
+#				sub_diagnostics.unregister()
+#			
+#				#if diag_name == name:
+#				if name in diag_name:
+#					diagnostics = diagnostics.replace('[','')
+#					diagnostics = diagnostics.replace(']','')
+#					diagnostics = '      ' + diagnostics.replace('\n','\n      ')
+#					self.log_file.write('\n' + diagnostics)
+#				else:
+#					self.log_file.write('\n      No diagnostics found by name <<%s>>' %(name))
 		else:
 			self.log_file.write('\n      Could not subscribe to /diagnostics topic')
 		
