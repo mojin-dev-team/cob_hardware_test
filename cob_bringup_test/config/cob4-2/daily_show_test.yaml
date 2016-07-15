@@ -1,36 +1,36 @@
 base:
   goals:
     ## Test goals [x,y,theta]
-    test_0: [0.1, 0, 0]
-    test_1: [-0.1, 0, 0]
+    test_0: [0.2, 0, 0]
+    test_1: [-0.2, 0, 0]
 
 
 actuators:
 
   torso:
     name: "torso"
-    test_target: "front_down"
+    test_target: [[0.0, 0.3]]
     default_target: "home"
 
-  head:
-    name: "head"
-    test_target: "front_down"
-    default_target: "front"
+#  head:
+#    name: "head"
+#    test_target: "front_down"
+#    default_target: "front"
 
-  sensorring:
-    name: "sensorring"
-    test_target: "back"
-    default_target: "front"
+#  sensorring:
+#    name: "sensorring"
+#    test_target: "right"
+#    default_target: "front"
 
   arm_left:
     name: "arm_left"
-    test_target: "folded"
-    default_target: "home"
+    test_target: "home"
+    default_target: "side"
 
   arm_right:
     name: "arm_right"
-    test_target: "folded"
-    default_target: "home"
+    test_target: "home"
+    default_target: "side"
     
 sensors:
 

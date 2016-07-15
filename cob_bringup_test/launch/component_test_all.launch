@@ -3,25 +3,13 @@
 
     <arg name="robot" default="$(optenv ROBOT !!NO_ROBOT_SET!!)"/>
     <arg name="sim" default="false" />
-    <arg name="cob4-1-t1" value="cob4-1-t1" />
-    <arg name="max_duration" default="0"/>
-    <arg name="max_rounds" default="0"/>
+    <arg name="max_duration" default="5"/>
+    <arg name="max_rounds" default="2"/>
     <arg name="result_dir" />
 
 
     <!-- start dialog service -->
     <node pkg="cob_hardware_test_core" type="dialog.py" name="dialog_server"/>
-
-
-    <!-- launch component or simulation-->
-    <include file="$(find cob_bringup_sim)/launch/robot.launch" if="$(arg sim)" >
-        <arg name="robot" value="$(arg robot)" />
-    </include>
-
-    <!-- launch component or simulation-->
-    <include file="$(find cob_bringup)/robot.launch" unless="$(arg sim)" >
-        <arg name="robot" value="$(arg robot)" />
-    </include>
 
     <!-- launch navigation -->
     <include file="$(find cob_navigation_global)/launch/2dnav_ros_dwa.launch" >

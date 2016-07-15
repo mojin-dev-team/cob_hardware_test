@@ -1,8 +1,8 @@
 base:
   goals:
     # Test goals [x,y,theta]
-    test_0: [0, 0, 0]
-    test_1: [0.1, 0, 0]
+    test_0: [0.1, 0, 0]
+    test_1: [-0.1, 0, 0]
   params:
     # Give duration in seconds
     max_duration: 30
@@ -11,36 +11,36 @@ actuators:
 
   torso:
     name: "torso"
-    test_target: "front_down"
+    test_target: [[0.0, 0.3]]
     default_target: "home"
     topic: /torso_controller/state
     msg_type: JointTrajectoryControllerState
 
-  head:
-    name: "head"
-    test_target: "front_down"
-    default_target: "front"
-    topic: /head_controller/state
-    msg_type: JointTrajectoryControllerState
+#  head:
+#    name: "head"
+#    test_target: "front_down"
+#    default_target: "front"
+#    topic: /head_controller/state
+#    msg_type: JointTrajectoryControllerState
 
-  sensorring:
-    name: "sensorring"
-    test_target: "back"
-    default_target: "front"
-    topic: /sensorring_controller/state
-    msg_type: JointTrajectoryControllerState
+#  sensorring:
+#    name: "sensorring"
+#    test_target: "right"
+#    default_target: "front"
+#    topic: /sensorring_controller/state
+#    msg_type: JointTrajectoryControllerState
 
   arm_left:
     name: "arm_left"
-    test_target: "folded"
-    default_target: "home"
+    test_target: "home"
+    default_target: "side"
     topic: /arm_left_controller/state
     msg_type: JointTrajectoryControllerState
 
   arm_right:
     name: "arm_right"
-    test_target: "folded"
-    default_target: "home"
+    test_target: "home"
+    default_target: "side"
     topic: /arm_right_controller/state
     msg_type: JointTrajectoryControllerState
     
