@@ -25,4 +25,9 @@
 
 		<arg name="sim" value="$(arg sim)"/>
 	</include>
+
+	<node ns="base" pkg="controller_manager" type="controller_manager" name="base_joint_group_velocity_controller_spawner" args="spawn joint_group_velocity_controller" respawn="false" output="screen"/>
+
+	<node pkg="cob_test_rigs" type="rqt_plot.sh" name="rqt_plot" respawn="false" output="screen"/>
+
 </launch>

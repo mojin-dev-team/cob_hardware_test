@@ -33,6 +33,7 @@ twist_controller:
 #      drive: fr_caster_r_wheel_joint
 
 joint_group_velocity_controller:
+  required_drive_mode: 3
   type: velocity_controllers/JointGroupVelocityController
   joints:
     - fl_caster_rotation_joint
