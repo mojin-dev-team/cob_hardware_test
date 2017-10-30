@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<launch>
+	<arg name="robot" value="fdm"/>
+	<arg name="pkg_hardware_config" value="$(find cob_test_rigs)"/>
+	<arg name="can_device" default="can0"/>
+	<arg name="can_id_steer" default="1"/>
+	<arg name="can_id_drive" default="2"/>
+	<arg name="interval_ms" value="20"/>
+	<arg name="use_external_sync" value="false"/>
+	<arg name="start_external_sync" value="false"/>
+	<arg name="reset_errors_before_recover" default="false"/>
+
+	<!-- upload robot_description -->
+	<param name="robot_description" command="$(find xacro)/xacro --inorder '$(arg pkg_hardware_config)/robots/fdm/urdf/fdm.urdf.xacro'" />
+
+	<!-- start robot_state_publisher -->
+	<node pkg="robot_state_publisher" type="state_publisher" name="robot_state_publisher"/>
+
+	<!-- driver -->
+	<include file="$(find cob_bringup)/drivers/canopen_402.launch">
+		<arg name="robot" value="$(arg robot)"/>
+		<arg name="pkg_hardware_config" value="$(arg pkg_hardware_config)"/>
+		<arg name="component_name" value="$(arg robot)"/>
+		<arg name="can_device" value="$(arg can_device)"/>
+		<arg name="interval_ms" value="$(arg interval_ms)"/>
+		<arg name="use_external_sync" value="$(arg use_external_sync)"/>
+		<arg name="start_external_sync" value="$(arg start_external_sync)"/>
+		<arg name="reset_errors_before_recover" value="$(arg reset_errors_before_recover)"/>
+	</include>
+
+	<!-- overwrite can_ids -->
+	<rosparam ns="fdm/driver" subst_value="True">{nodes: { test_caster_rotation_joint: { id: $(arg can_id_steer) } , test_caster_r_wheel_joint: { id: $(arg can_id_drive) } } }</rosparam>
+
+	<!-- controllers -->
+	<group ns="fdm">
+		<rosparam command="load" file="$(find cob_test_rigs)/robots/fdm/config/fdm_controller.yaml"/>
+		<node pkg="controller_manager" type="controller_manager" name="fdm_controller_spawner" args="spawn joint_state_controller joint_group_velocity_controller" respawn="false" output="screen"/>
+	</group>
+
+</launch>

@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro"
+       name="fdm" >
+
+  <!-- common stuff -->
+  <xacro:include filename="$(find cob_description)/urdf/common.xacro" />
+  <xacro:include filename="$(find cob_description)/urdf/materials.urdf.xacro" />
+
+  <!-- fdm -->
+  <xacro:include filename="$(find cob_description)/urdf/drive_wheel/drive_wheel.urdf.xacro" />
+
+  <link name="world" />
+
+  <!-- composition of the robot -->
+  <xacro:drive_wheel parent="world" suffix="test">
+    <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+  </xacro:drive_wheel>
+
+</robot>
