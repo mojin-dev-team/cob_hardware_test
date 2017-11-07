@@ -1,0 +1,15 @@
+## joint_names
+joint_names: [test_caster_rotation_joint, test_caster_r_wheel_joint]
+
+## joint_state_controller
+joint_state_controller:
+  type: joint_state_controller/JointStateController
+  publish_rate: 50
+
+joint_group_velocity_controller:
+  required_drive_mode: 3
+  type: velocity_controllers/JointGroupVelocityController
+  joints: # sort alphabetically to match "joint_state_controller" order
+    - test_caster_r_wheel_joint
+    - test_caster_rotation_joint
+
