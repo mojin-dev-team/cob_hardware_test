@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<launch>
+	<arg name="robot" value="single"/>
+	<arg name="pkg_hardware_config" value="$(find cob_test_rigs)"/>
+	<arg name="can_device"/>
+	<arg name="can_id"/>
+	<arg name="interval_ms" value="20"/>
+	<arg name="use_external_sync" value="false"/>
+	<arg name="start_external_sync" value="false"/>
+	<arg name="reset_errors_before_recover" default="false"/>
+
+	<!-- upload robot_description -->
+	<param name="robot_description" command="$(find xacro)/xacro --inorder '$(arg pkg_hardware_config)/robots/single/urdf/single.urdf.xacro'" />
+
+	<!-- start robot_state_publisher -->
+	<node pkg="robot_state_publisher" type="state_publisher" name="robot_state_publisher"/>
+
+	<!-- driver -->
+	<include file="$(find cob_bringup)/drivers/canopen_402.launch">
+		<arg name="robot" value="$(arg robot)"/>
+		<arg name="pkg_hardware_config" value="$(arg pkg_hardware_config)"/>
+		<arg name="component_name" value="single_schunk"/>
+		<arg name="can_device" value="$(arg can_device)"/>
+		<arg name="interval_ms" value="$(arg interval_ms)"/>
+		<arg name="use_external_sync" value="$(arg use_external_sync)"/>
+		<arg name="start_external_sync" value="$(arg start_external_sync)"/>
+		<arg name="reset_errors_before_recover" value="$(arg reset_errors_before_recover)"/>
+	</include>
+
+	<!-- overwrite can_ids -->
+	<rosparam ns="single_schunk/driver" subst_value="True">{nodes: { single_joint: { id: $(arg can_id) } } }</rosparam>
+
+	<!-- controllers -->
+	<group ns="single_schunk">
+		<rosparam command="load" file="$(find cob_test_rigs)/robots/single/config/single_controller.yaml"/>
+		<node pkg="controller_manager" type="controller_manager" name="single_controller_spawner" args="spawn joint_state_controller" respawn="false" output="screen"/>
+	</group>
+
+</launch>
