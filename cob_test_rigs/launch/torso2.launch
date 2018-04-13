@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<launch>
+	<arg name="robot" value="torso2"/>
+	<arg name="can_device" default="can0"/>
+
+	<!-- driver -->
+	<include file="$(find cob_test_rigs)/launch/component.xml">
+		<arg name="robot" value="$(arg robot)"/>
+		<arg name="can_device" value="$(arg can_device)"/>
+	</include>
+
+</launch>

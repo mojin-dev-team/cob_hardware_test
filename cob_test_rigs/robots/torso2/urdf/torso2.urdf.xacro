@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro"
+       name="robot" >
+
+  <!-- common stuff -->
+  <xacro:include filename="$(find cob_description)/urdf/common.xacro" />
+  <xacro:include filename="$(find cob_description)/urdf/materials.urdf.xacro" />
+
+  <!-- torso -->
+  <xacro:include filename="$(find cob_description)/urdf/cob4_torso/torso.urdf.xacro" />
+
+  <link name="world" />
+  <xacro:torso name="torso" parent="world" dof1="false" dof2="true" dof3="true">
+    <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+  </xacro:torso>
+
+</robot>
