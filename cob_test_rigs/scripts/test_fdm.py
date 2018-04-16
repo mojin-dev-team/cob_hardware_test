@@ -22,9 +22,9 @@ class FDM():
         self.set_vel(0.0, 0.0)
         rospy.sleep(3)
 
-        steps = 5
-        max_vel_steer = 1.0#94.0
-        max_vel_drive = 0.0#20.0
+        steps = 100
+        max_vel_steer = 10.0
+        max_vel_drive = 20.0
         for i in range(1, steps + 1):
             if rospy.is_shutdown():
                 return
@@ -33,11 +33,13 @@ class FDM():
             print "value_steer:", value_steer
             print "value_drive:", value_drive
             self.set_vel(value_steer, value_drive)
-            rospy.sleep(3)
+            #self.set_vel(max_vel_steer, max_vel_drive)
+            rospy.sleep(0.5)
 
         self.set_vel(0.0, 0.0)
         rospy.sleep(3)
 
+        steps = 5
         for i in range(1, steps + 1):
             if rospy.is_shutdown():
                 return
