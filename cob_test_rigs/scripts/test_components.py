@@ -9,12 +9,14 @@ import sys
 from optparse import OptionParser
 
 class MoveComponent():
-    def __init__(self, component, reps):
+    def __init__(self, options):
         rospy.init_node('component_test')
-        self.component = str(component)
-        self.reps = int(reps)
+        self.component = str(options.component)
+        self.reps = int(options.repetitions)
+        self.default_vel = float(options.default_vel)
  
     def run_test(self):
+        rospy.set_param("/script_server/torso2/default_vel", self.default_vel)
         poses = rospy.get_param("/script_server/" + self.component)
         for i in range(0, self.reps):
             for key, value in poses.iteritems():
@@ -25,6 +27,7 @@ class MoveComponent():
                     break
                 else:
                     rospy.loginfo("Moved to pose %s successfully", key)
+        handle = sss.move(self.component, "home", True)
 
     def component_init(self):
         # call init
@@ -50,12 +53,15 @@ if __name__ == '__main__':
     parser.add_option(
         '-r', '--reps', dest='repetitions', default=5,
         help="Number of repetitions for each test cycle")
+    parser.add_option(
+        '-v', '--default_vel', dest='default_vel', default=0.2,
+        help="Overwrite default velocity of component")
     (options, args) = parser.parse_args()
     if not any([options.component]):
         parser.print_usage()
         quit()
     try:
-        component = MoveComponent(options.component, options.repetitions)
+        component = MoveComponent(options)
         component.component_init()
         component.run_test()
     except rospy.ROSInterruptException:
