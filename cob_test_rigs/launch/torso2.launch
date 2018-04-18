@@ -7,6 +7,8 @@
 	<include file="$(find cob_test_rigs)/launch/component.xml">
 		<arg name="robot" value="$(arg robot)"/>
 		<arg name="can_device" value="$(arg can_device)"/>
+		<arg name="joint_names" value="['torso_2_joint','torso_3_joint']"/>
+		<arg name="default_vel" value="0.4"/>
 	</include>
 
 </launch>

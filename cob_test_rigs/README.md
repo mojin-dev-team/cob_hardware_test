@@ -27,20 +27,24 @@ export ROS_IP=eigene IP Adresse
 =========================================================================
 Komponenten
 
-COMPONENT: one of torso2, torso3, head2,...(NO FDM)
+CAN_DEVICE: e.g. can0, can1,...
+COMPONENT: e.g. torso2, torso3, head2,...(NO FDM)
 
 ﻿Start bringup
 roslaunch cob_test_rigs COMPONENT.launch [can_device:=can1]
 
 initialize:
-rosservice call /COMPONENT/driver/[init/recover]
+rosservice call /CAN_DEVICE/COMPONENT/driver/[init/recover]
 
 Testscript
-rosrun cob_test_rigs test_components.py -c COMPONENT -r 1
+rosrun cob_test_rigs test_components.py -c COMPONENT -d CAN_DEVICE -r 1 -v 0.4
 
 Options:
+  -h, --help            show this help message and exit
   -c COMPONENT, --component=COMPONENT
                         Component that is going to be tested
+  -d CAN_DEVICE, --can_device=CAN_DEVICE
+                        CAN device the component is connected to
   -r REPETITIONS, --reps=REPETITIONS
                         Number of repetitions for each test cycle
   -v DEFAULT_VEL, --default_vel=DEFAULT_VEL
@@ -50,14 +54,14 @@ start cob_console
 rosrun cob_script_server cob_console 
 
 use in cob_console
-sss.move("COMPONENT","CONFIG")
-sss.init("COMPONENT")
+sss.move("CAN_DEVICE/COMPONENT","test/CONFIG")
+sss.init("CAN_DEVICE/COMPONENT")
 
 exit cob_console
 STRG + D, then ENTER
 
 get available configs/poses
-rosparam get /script_server/COMPONENT
+rosparam get /script_server/CAN_DEVICE/COMPONENT
 
 
 ==========================================================================
