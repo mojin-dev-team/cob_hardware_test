@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<launch>
+
+	<arg name="robot"/>
+	<arg name="pkg_hardware_config" value="$(find cob_test_rigs)"/>
+	<arg name="can_device"/>
+	<arg name="joint_names"/>
+	<arg name="default_vel"/>
+
+	<!-- upload default configuration parameters -->
+	<rosparam param="/script_server/$(arg can_device)/$(arg robot)/joint_names" subst_value="True">$(arg joint_names)</rosparam>
+	<param name="/script_server/$(arg can_device)/$(arg robot)/action_name" value="/$(arg can_device)/$(arg robot)/joint_trajectory_controller/follow_joint_trajectory"/>
+	<param name="/script_server/$(arg can_device)/$(arg robot)/service_ns" value="/$(arg can_device)/$(arg robot)/driver"/>
+	<param name="/script_server/$(arg can_device)/$(arg robot)/default_vel" value="$(arg default_vel)" type="double"/>
+	<rosparam command="load" ns="/script_server/$(arg can_device)/$(arg robot)/test" file="$(arg pkg_hardware_config)/robots/$(arg robot)/config/$(arg robot)_configurations.yaml"/>
+
+	<group ns="$(arg can_device)">
+		<!-- upload robot_description -->
+		<param name="robot_description" command="$(find xacro)/xacro --inorder '$(arg pkg_hardware_config)/robots/$(arg robot)/urdf/$(arg robot).urdf.xacro'"/>
+
+		<!-- start component -->
+		<include file="$(find cob_bringup)/drivers/canopen_402.launch">
+			<arg name="robot" value="$(arg robot)"/>
+			<arg name="pkg_hardware_config" value="$(arg pkg_hardware_config)"/>
+			<arg name="component_name" value="$(arg robot)"/>
+			<arg name="can_device" value="$(arg can_device)"/>
+			<arg name="interval_ms" value="10"/>
+			<arg name="use_external_sync" value="false"/>
+			<arg name="start_external_sync" value="false"/>
+		</include>
+
+		<include file="$(find cob_bringup)/controllers/generic_controller.launch">
+			<arg name="robot" value="$(arg robot)"/>
+			<arg name="pkg_hardware_config" value="$(arg pkg_hardware_config)"/>
+			<arg name="component_name" value="$(arg robot)"/>
+		</include>
+	</group>
+
+</launch>
