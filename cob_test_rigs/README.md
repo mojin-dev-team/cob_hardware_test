@@ -1,6 +1,7 @@
+FDM
+
 ﻿Start bringup
 roslaunch cob_test_rigs fdm.launch can_id_steer:=3 can_id_drive:=4
-
 
 Testscript
 rosrun cob_test_rigs test_fdm.py
@@ -23,8 +24,10 @@ ifconfig = eigene IP Adresse aus eth0
 export ROS_IP=eigene IP Adresse 
 
 
-Komponenten:
-COMPONENT: one of torso2,torso3,head2,...(NO FDM)
+=========================================================================
+Komponenten
+
+COMPONENT: one of torso2, torso3, head2,...(NO FDM)
 
 ﻿Start bringup
 roslaunch cob_test_rigs COMPONENT.launch [can_device:=can1]
@@ -40,6 +43,8 @@ Options:
                         Component that is going to be tested
   -r REPETITIONS, --reps=REPETITIONS
                         Number of repetitions for each test cycle
+  -v DEFAULT_VEL, --default_vel=DEFAULT_VEL
+                        Overwrite default velocity of component
 
 start cob_console
 rosrun cob_script_server cob_console 
@@ -52,23 +57,33 @@ exit cob_console
 STRG + D, then ENTER
 
 get available configs/poses
-rosparam get /script_server/torso2/
+rosparam get /script_server/COMPONENT
 
 
 ==========================================================================
 SINGLE JOINT TESTING
 
-roslaunch cob_test_rigs single_[elmo/schunk].launch can_device:=can0 can_id:=33
+roslaunch cob_test_rigs single_[elmo/schunk].launch can_device:=can0 can_id:=XX
 
-rosservice call /single_elmo/driver/init 
+can_ids:
+ - torso: 31, 32, 33
+ - head: 70, 71, 72
+ - sensorring: 73
+ - arm: 61, 62, 63, 64, 65, 66, 67
+
+rosservice call /single_[elmo/schunk]/driver/init 
 
 start graphical tools
 rqt
 
-start controller
-
-
-
+start controller (in rqt window)
+go to tab controller manager
+add joint_trajectory_controller from drop-down menu
+right click on controller name -> press start (needs to be "running" afterwards)
 
 move single joint
+go to tab joint trajectory controller
+select joint_trajectory_controller from drop down
+press red button to activate slider (button turns green)
+move the slider or enter desired joint position [rad] directly
 
