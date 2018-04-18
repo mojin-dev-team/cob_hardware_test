@@ -19,7 +19,7 @@ class MoveComponent():
         rospy.set_param("/script_server/"+self.component+"/default_vel", self.default_vel)
         poses = rospy.get_param("/script_server/" +self.component+"/test")
         for i in range(0, self.reps):
-            rospy.loginfo(">>>> Executing iteration %s of %s", str(i), str(self.reps))
+            rospy.logwarn(">>>> Executing iteration %s of %s", str(i), str(self.reps))
             for key, value in poses.iteritems():
                 rospy.loginfo("Moving to pose %s", str(key))
                 handle = sss.move(self.component, value, True)
