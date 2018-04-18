@@ -22,13 +22,11 @@ joint_trajectory_controller:
 
 single_joint_position_controller:
   type: position_controllers/JointPositionController
-  joints:
-    - single_joint
+  joint: single_joint
   required_drive_mode: 1
 
 single_joint_velocity_controller:
   type: velocity_controllers/JointVelocityController
-  joints:
-    - single_joint
-  required_drive_mode: 2
+  joint: single_joint
+  required_drive_mode: 3
 

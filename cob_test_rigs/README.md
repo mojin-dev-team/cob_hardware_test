@@ -75,19 +75,33 @@ can_ids:
  - sensorring: 73
  - arm: 61, 62, 63, 64, 65, 66, 67
 
-rosservice call /single_[elmo/schunk]/driver/init 
+rosservice call /single_[elmo/schunk]/driver/[init/recover]
 
 start graphical tools
 rqt
 
-start controller (in rqt window)
-go to tab controller manager
-add joint_trajectory_controller from drop-down menu
-right click on controller name -> press start (needs to be "running" afterwards)
+Test JointTrajectoryController:
 
-move single joint
-go to tab joint trajectory controller
-select joint_trajectory_controller from drop down
-press red button to activate slider (button turns green)
-move the slider or enter desired joint position [rad] directly
+ - start controller (in rqt window)
+   - go to tab controller manager
+   - add joint_trajectory_controller from drop-down menu
+   - right-click on controller name -> press start (needs to be "running" afterwards)
+
+ - move single joint
+   - go to tab joint trajectory controller
+   - select joint_trajectory_controller from drop down
+   - press red button to activate slider (button turns green)
+   - move the slider or enter desired joint position [rad] directly
+
+Test JointPositionController/JointVelocityController
+ - start controller (in rqt window)
+   - go to tab controller manager
+   - add [single_joint_position_controller/single_joint_velocity_controller] from drop-down menu
+   - righ-click on respective controller -> press start (needs to be "running" afterwards)
+   - make sure no other "commanding" controller is running at the same time ("joint_state_controller" can be "running")
+
+ - command sine function
+   - rosrun cob_test_rigs test_single_sine.py -a 0.1 -b 0.1 -c 0.0 -d 0.0 -n 0.0 __ns:=single_[elmo/schunk]/single_joint_[position/velocity]_controller
+   - set parameters a, b, c, d, n with caution!!!
+   - adjust value of __ns according to loaded controller
 
