@@ -28,7 +28,7 @@ class MoveComponent():
                     break
                 else:
                     rospy.loginfo("Moved to pose %s successfully", key)
-        handle = sss.move(self.component, "home", True)
+        handle = sss.move(self.component, "test/home", True)
         rospy.loginfo(">>>> Test finished")
 
     def component_init(self):
