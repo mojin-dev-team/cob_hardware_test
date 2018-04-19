@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro"
+       name="robot" >
+
+  <!-- common stuff -->
+  <xacro:include filename="$(find cob_description)/urdf/common.xacro" />
+  <xacro:include filename="$(find cob_description)/urdf/materials.urdf.xacro" />
+
+  <!-- sensorring -->
+  <xacro:include filename="$(find cob_description)/urdf/cob4_sensorring/sensorring.urdf.xacro" />
+
+  <link name="world" />
+  <xacro:sensorring name="sensorring" parent="world" active="true">
+    <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+  </xacro:sensorring>
+
+</robot>

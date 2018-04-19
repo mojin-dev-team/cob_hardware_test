@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<launch>
+	<arg name="robot" value="sensorring"/>
+	<arg name="can_device" default="can0"/>
+
+	<!-- driver -->
+	<include file="$(find cob_test_rigs)/launch/component.xml">
+		<arg name="robot" value="$(arg robot)"/>
+		<arg name="can_device" value="$(arg can_device)"/>
+		<arg name="joint_names" value="['sensorring_joint']"/>
+		<arg name="default_vel" value="0.6"/>
+	</include>
+
+</launch>
