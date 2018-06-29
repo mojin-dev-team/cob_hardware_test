@@ -50,6 +50,9 @@ Options:
   -v DEFAULT_VEL, --default_vel=DEFAULT_VEL
                         Overwrite default velocity of component
 
+start rqt plugins (for slider):
+rqt __ns:=CAN_DEVICE
+
 start cob_console
 rosrun cob_script_server cob_console 
 
