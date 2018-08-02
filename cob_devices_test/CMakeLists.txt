@@ -6,6 +6,7 @@ find_package(catkin REQUIRED COMPONENTS)
 catkin_package()
 
 install(PROGRAMS
+  scripts/test_light.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

@@ -2,24 +2,19 @@
 <launch>
 
     <arg name="camera_name" default="torso_cam3d_"/>
+    <arg name="robot" value="cob4"/>
 
-    <include unless="$(arg sim)" file="$(find realsense_camera)/launch/zr300_nodelet_rgbd.launch">
-        <arg name="camera" value="$(arg camera_name)left"/>
-        <arg name="num_worker_threads" value="2" />
-        <arg name="serial_no" value=""/>
-    </include>
+ 
+    <!-- start light controller -->
+    <node pkg="cob_light" type="cob_light" name="light_torso" output="screen">
+            <rosparam command="load" file="$(find mojin_hardware_config)/robots/$(arg robot)/config/light_torso.yaml"/>
+            <param name="sim_enabled" value="false"/>
+    </node>
 
-    <include unless="$(arg sim)" file="$(find realsense_camera)/launch/zr300_nodelet_rgbd.launch">
-        <arg name="camera" value="$(arg camera_name)right"/>
-        <arg name="num_worker_threads" value="2" />
-        <arg name="serial_no" value=""/>
-    </include>
+    <!-- start light script -->
+    <node pkg="cob_devices_test" type="test_light.py" name="test_light" output="screen" args="torso"/>
 
-    <include unless="$(arg sim)" file="$(find realsense_camera)/launch/zr300_nodelet_rgbd.launch">
-        <arg name="camera" value="$(arg camera_name)down"/>
-        <arg name="num_worker_threads" value="2" />
-        <arg name="serial_no" value=""/>
-    </include>
+
 
     <!-- start rviz with configuration -->
     <node pkg="rviz" type="rviz" name="$(anon rviz)" args="-d $(find cob_devices_test)/config/Inbetriebnahme.rviz" respawn="false" output="screen" />
