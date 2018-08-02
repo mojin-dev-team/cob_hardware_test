@@ -1,11 +1,10 @@
 <?xml version="1.0"?>
 <launch>
-    <arg name="camera_name" default="head_cam"/>
 
     <!-- start head cam-->
-    <node name="$(arg camera_name)" pkg="usb_cam" type="usb_cam_node" output="screen">
-        <param name="camera_name" value="$(arg camera_name)"/>
-        <param name="camera_frame_id" value="$(arg camera_name)_optical_frame"/>
+    <node name="head_cam" pkg="usb_cam" type="usb_cam_node" output="screen">
+        <param name="camera_name" value="head_cam"/>
+        <param name="camera_frame_id" value="head_cam_optical_frame"/>
     </node>
 
     <!-- start rviz with configuration -->
