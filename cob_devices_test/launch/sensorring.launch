@@ -12,7 +12,7 @@
     <!-- start rviz with configuration -->
     <node pkg="rviz" type="rviz" name="$(anon rviz)" args="-d $(find cob_devices_test)/config/Inbetriebnahme.rviz" respawn="false" output="screen" />
 
-	<node pkg="tf2_ros" type="static_transform_publisher" name="stp_rgb_frame" args="0.0 0.0 0.0 0.0 0.0 0.0 1.0 /base_link /$(arg camera_name)_link"/>
+	<node pkg="tf2_ros" type="static_transform_publisher" name="base_frame" args="0.0 0.0 0.0 0.0 0.0 0.0 1.0 /base_link /$(arg camera_name)_link"/>
     	<!-- static frames broadcasted by camera driver -->
 	<node pkg="tf2_ros" type="static_transform_publisher" name="stp_rgb_frame" args="0.0 0.0 0.0 0.0 0.0 0.0 1.0 /$(arg camera_name)_link /$(arg camera_name)_rgb_frame"/>
 	<node pkg="tf2_ros" type="static_transform_publisher" name="stp_rgb_optical_frame" args="0.0 0.0 0.0 -0.5 0.5 -0.5 0.5 /$(arg camera_name)_rgb_frame /$(arg camera_name)_rgb_optical_frame"/>
