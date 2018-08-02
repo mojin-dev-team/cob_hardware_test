@@ -28,11 +28,21 @@
     <node unless="$(arg sim)" ns="$(arg name)right" pkg="cob_sick_s300" type="cob_sick_s300" name="driver" respawn="false" output="screen">
         <remap from="scan" to="scan_raw"/>
     </node>
+    
+    <!-- start light controller -->
+    <node pkg="cob_light" type="cob_light" name="light_base" output="screen">
+            <rosparam command="load" file="$(find mojin_hardware_config)/robots/$(arg robot)/config/light_base.yaml"/>
+            <param name="sim_enabled" value="false"/>
+    </node>
 
+    <!-- start light script -->
+    <node pkg="cob_devices_test" type="test_light.py" name="test_light" output="screen" args="base"/>
 
 
     <!-- start rviz with configuration -->
     <node pkg="rviz" type="rviz" name="$(anon rviz)" args="-d $(find cob_devices_test)/config/Inbetriebnahme.rviz" respawn="false" output="screen" />
-
-
+    
+    <node pkg="tf2_ros" type="static_transform_publisher" name="front_frame" args="0.244, 0.000, 0.209 0.0 0.0 0.0 1.0 /base_link /$(arg name)front_link"/>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="left_frame" args="-0.122, 0.211, 0.209 0.000, 0.000, 0.866, 0.500 /base_link /$(arg name)left_link"/>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="right_frame" args="-0.122, -0.211, 0.209 0.000, 0.000, -0.866, 0.500 /base_link /$(arg name)right_link"/>
 </launch>

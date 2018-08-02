@@ -271,7 +271,7 @@ Visualization Manager:
           Size (Pixels): 3
           Size (m): 0.00999999978
           Style: Flat Squares
-          Topic: /base_laser_front/scan
+          Topic: /base_laser_front/scan_raw
           Unreliable: false
           Use Fixed Frame: true
           Use rainbow: true
@@ -301,7 +301,7 @@ Visualization Manager:
           Size (Pixels): 3
           Size (m): 0.00999999978
           Style: Flat Squares
-          Topic: /base_laser_right/scan
+          Topic: /base_laser_right/scan_raw
           Unreliable: false
           Use Fixed Frame: true
           Use rainbow: true
@@ -331,7 +331,7 @@ Visualization Manager:
           Size (Pixels): 3
           Size (m): 0.00999999978
           Style: Flat Squares
-          Topic: /base_laser_left/scan
+          Topic: /base_laser_left/scan_raw
           Unreliable: false
           Use Fixed Frame: true
           Use rainbow: true
