@@ -2,7 +2,9 @@ cob_devices_test
 =================
 
 ## HEAD:
-Connect the camera, touchscreen and soundcard to the computer
+- Connect the head to the power supply (first, connect before switching on the supply).
+- Connect the computer to the head display
+- Connect the camera, touchscreen and soundcard to the computer.
 
 Start launchfile
 
@@ -12,7 +14,7 @@ Start launchfile
 Select **Head_Test** in RVIZ, the Camera Image of the head camera should be visible
 
 ### Sound: 
-Select the correct Input and Output devices **(Sound Blaster Play! 2)** at the Sound Settings 
+Select the correct Input and Output devices **(Sound Blaster Play! 2)** at the Sound Settings (set Input Volume to 100%)
 and record sound with 
 
 ```arecord -C test.wav```
@@ -21,11 +23,12 @@ See if sound has been recorded successfully with
 
 ```aplay test.wav```
 
+Test Speakers with **Test Speakers** within the Sound Settings (check if left and right is correct)
 ### Touchscreen:
 Touch the display of the robot
 
 ## SENSORRING:
-Connect the camera to the computer
+- Connect the camera to the computer
 
 Start launchfile
 
@@ -36,7 +39,7 @@ Select **Sensorring_Test** in RVIZ, the Camera Image of the sensorring camera sh
 Also the Pointclouds should be visible in RVIZ
 
 ## TORSO:
-Connect the cameras and the light to the computer
+- Connect the cameras and the light to the computer
 
 Start launchfile
 
@@ -51,7 +54,7 @@ Also the Pointclouds should be visible in RVIZ
 
 
 ## BASE:
-Connect the laserscanners and the light to the computer
+- Connect the laserscanners and the light to the computer
 
 Start launchfile
 
