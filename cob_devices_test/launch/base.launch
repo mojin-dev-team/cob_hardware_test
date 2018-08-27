@@ -4,19 +4,14 @@
     <arg name="robot" default="cob4"/>
     <arg name="flexisoft_host"/>
 
-    <!-- start laser driver -->
     <include file="$(find mojin_bringup)/drivers/sick_s300.launch">
         <arg name="robot" value="$(arg robot)"/>
         <arg name="name" value="base_laser_front"/>
     </include>
-
-    <!-- start laser driver -->
     <include file="$(find mojin_bringup)/drivers/sick_s300.launch">
         <arg name="robot" value="$(arg robot)"/>
         <arg name="name" value="base_laser_left"/>
     </include>
-
-    <!-- start laser driver -->
     <include file="$(find mojin_bringup)/drivers/sick_s300.launch">
         <arg name="robot" value="$(arg robot)"/>
         <arg name="name" value="base_laser_right"/>
@@ -30,14 +25,13 @@
         <arg name="robot" value="$(arg robot)"/>
     </include>
 
-    <!-- start light controller -->
-    <node pkg="cob_light" type="cob_light" name="light_base" output="screen">
-        <rosparam command="load" file="$(find mojin_hardware_config)/robots/$(arg robot)/config/light_base.yaml"/>
-        <param name="sim_enabled" value="false"/>
-    </node>
+    <include file="$(find mojin_bringup)/drivers/light.launch">
+        <arg name="robot" value="$(arg robot)"/>
+        <arg name="component_name" value="light_base"/>
+    </include>
 
     <!-- start light script -->
-    <node pkg="cob_devices_test" type="test_light.py" name="test_light" output="screen" args="base"/>
+    <node ns="light_base" pkg="cob_devices_test" type="test_light.py" name="test_light" output="screen"/>
 
 
     <!-- start rviz with configuration -->

@@ -21,19 +21,15 @@
         <arg name="serial_no" value=""/>
     </include>
  
-    <!-- start light controller -->
-    <node pkg="cob_light" type="cob_light" name="light_torso" output="screen">
-            <rosparam command="load" file="$(find mojin_hardware_config)/robots/$(arg robot)/config/light_torso.yaml"/>
-            <param name="sim_enabled" value="false"/>
-    </node>
+    <include file="$(find mojin_bringup)/drivers/light.launch">
+        <arg name="robot" value="$(arg robot)"/>
+        <arg name="component_name" value="light_base"/>
+    </include>
 
     <!-- start light script -->
-    <node pkg="cob_devices_test" type="test_light.py" name="test_light" output="screen" args="torso"/>
-
-
+    <node ns="light_torso" pkg="cob_devices_test" type="test_light.py" name="test_light" output="screen"/>
 
     <!-- start rviz with configuration -->
     <node pkg="rviz" type="rviz" name="$(anon rviz)" args="-d $(find cob_devices_test)/config/Inbetriebnahme.rviz" respawn="false" output="screen" />
-
 
 </launch>
