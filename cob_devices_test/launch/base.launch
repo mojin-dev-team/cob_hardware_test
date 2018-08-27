@@ -24,15 +24,18 @@
     <include file="$(find mojin_bringup)/drivers/bms.launch">
         <arg name="robot" value="$(arg robot)"/>
     </include>
+    <include file="$(find mojin_bringup)/drivers/joy.launch">
+        <arg name="robot" value="$(arg robot)"/>
+    </include>
 
     <include file="$(find mojin_bringup)/drivers/light.launch">
         <arg name="robot" value="$(arg robot)"/>
         <arg name="component_name" value="light_base"/>
     </include>
-
-    <!-- start light script -->
     <node ns="light_base" pkg="cob_devices_test" type="test_light.py" name="test_light" output="screen"/>
 
+    <include file="$(find mojin_bringup)/tools/diagnostics_aggregator.launch"/>
+    <node pkg="rqt_robot_monitor" type="rqt_robot_monitor" name="rqt_robot_monitor" output="screen"/>
 
     <!-- start rviz with configuration -->
     <node pkg="rviz" type="rviz" name="$(anon rviz)" args="-d $(find cob_devices_test)/config/Inbetriebnahme.rviz" respawn="false" output="screen" />

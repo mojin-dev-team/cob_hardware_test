@@ -13,7 +13,9 @@
 
   <exec_depend>cob_light</exec_depend>
   <exec_depend>cob_sick_s300</exec_depend>
+  <exec_depend>mojin_bringup</exec_depend>
   <exec_depend>realsense_camera</exec_depend>
+  <exec_depend>rqt_robot_monitor</exec_depend>
   <exec_depend>rviz</exec_depend>
   <exec_depend>tf2_ros</exec_depend>
   <exec_depend>usb_cam</exec_depend>

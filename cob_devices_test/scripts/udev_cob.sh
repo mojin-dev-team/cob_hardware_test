@@ -71,6 +71,12 @@ ScanLeftAttr1='ATTRS{bInterfaceNumber}=="01"'
 ## ScanRight ##
 ScanRightAttr1='ATTRS{bInterfaceNumber}=="00"'
 
+sudo rm -rf /tmp/usb*
+sudo rm -rf /dev/ttyScanFront
+sudo rm -rf /dev/ttyScanLeft
+sudo rm -rf /dev/ttyScanRight
+sudo rm -rf /dev/joypad
+
 for file in /dev/ttyUSB*; do
   sudo chmod 666 $file
   sudo rm -f /tmp/usb${file: -1}
@@ -125,7 +131,6 @@ ScanRightAttr2=$ATTRSSerialR
 JoyAttr1='ATTRS{idVendor}=="046d"'
 #JoyAttr2='ATTRS{idProduct}=="c21f"'
 
-sleep 30
 
 sudo chmod 666 /dev/ttyUSB0
 sudo udevadm info -a -p $(udevadm info -q path -n /dev/ttyUSB0) > /tmp/usb0
