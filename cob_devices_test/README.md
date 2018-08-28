@@ -1,6 +1,45 @@
 cob_devices_test
 =================
 
+
+## BASE:
+- Connect the USB-Hub (for laser scanner, light, joystick) and CAN-Dongle (for bms) to the computer via two separate USB cables. 
+
+Setup udev rules
+
+```
+su robot
+sudo /home/support/git/robot_ws/src/cob_hardware_test/cob_devices_test/scripts/udev_cob.sh
+```
+
+Start launchfile
+
+```roslaunch cob_devices_test base.launch flexisoft_host:=XX.XX.XX.99```
+
+### Light:
+The LEDs of the wheel covers will light up one-by-one (CIRCLE_COLOR) red-green-blue.
+
+### Laserscanner:
+Select **Base_Test** in RVIZ, the laserscanner points should be visible in RVIZ (front-green, left-white, right-yellow)
+
+### BMS:
+Check diagnostics in the `rqt_robot_monitor`
+
+### Joystick:
+Check diagnostics in the `rqt_robot_monitor` and/or execute `rostopic echo /joy` and use the joystick.
+
+
+## TORSO:
+- Connect the light to the computer
+
+Start launchfile
+
+```roslaunch cob_devices_test torso.launch```
+
+### Light:
+The LEDs of the LED ring will light up one-by-one (CIRCLE_COLOR) red-green-blue.
+
+
 ## HEAD:
 - Connect the head to the power supply (first, connect before switching on the supply).
 - Connect the computer to the head display
@@ -23,45 +62,7 @@ See if sound has been recorded successfully with
 
 ```aplay test.wav```
 
-Test Speakers with **Test Speakers** within the Sound Settings (check if left and right is correct)
+Test Speakers with **Test Speakers** within the Sound Settings (check if left and right is correct
+
 ### Touchscreen:
 Touch the display of the robot
-
-## SENSORRING:
-- Connect the camera to the computer
-
-Start launchfile
-
-```roslaunch cob_devices_test sensorring.launch```
-
-### Camera:
-Select **Sensorring_Test** in RVIZ, the Camera Image of the sensorring camera should be visible.
-Also the Pointclouds should be visible in RVIZ
-
-## TORSO:
-- Connect the cameras and the light to the computer
-
-Start launchfile
-
-```roslaunch cob_devices_test torso.launch```
-
-### Light:
-Torso LED ring will flash (in that order) white-red-green-blue
-
-### Camera:
-Select **Torso_Test** in RVIZ, the Camera Images of the torso cameras should be visible.
-Also the Pointclouds should be visible in RVIZ
-
-
-## BASE:
-- Connect the laserscanners and the light to the computer
-
-Start launchfile
-
-```roslaunch cob_devices_test base.launch```
-
-### Light:
-Base wheel-cover-LEDs will flash (in that order) white-red-green-blue
-
-### Laserscanner:
-Select **Base_Test** in RVIZ, the laserscanner points should be visible in RVIZ (front-green, left-white, right-yellow)

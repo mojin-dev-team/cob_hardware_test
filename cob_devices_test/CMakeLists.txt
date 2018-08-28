@@ -7,9 +7,10 @@ catkin_package()
 
 install(PROGRAMS
   scripts/test_light.py
+  scripts/udev_cob.sh
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-install(DIRECTORY launch robots config
+install(DIRECTORY launch config
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
