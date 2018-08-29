@@ -7,7 +7,8 @@ catkin_package()
 
 install(PROGRAMS
   scripts/test_light.py
-  scripts/udev_cob.sh
+  scripts/udev_joy.sh
+  scripts/udev_s300.sh
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
