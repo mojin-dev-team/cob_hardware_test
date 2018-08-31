@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<launch>
+
+    <arg name="robot" default="cob4"/>
+    <arg name="flexisoft_host"/>
+
+    <include file="$(find mojin_bringup)/drivers/sick_s300.launch">
+        <arg name="robot" value="$(arg robot)"/>
+        <arg name="name" value="base_laser_front"/>
+    </include>
+    <include file="$(find mojin_bringup)/drivers/sick_s300.launch">
+        <arg name="robot" value="$(arg robot)"/>
+        <arg name="name" value="base_laser_left"/>
+    </include>
+    <include file="$(find mojin_bringup)/drivers/sick_s300.launch">
+        <arg name="robot" value="$(arg robot)"/>
+        <arg name="name" value="base_laser_right"/>
+    </include>
+
+    <include file="$(find mojin_bringup)/drivers/sick_flexisoft.launch">
+        <arg name="robot" value="$(arg robot)"/>
+        <arg name="host" value="$(arg flexisoft_host)"/>
+    </include>
+    <include file="$(find mojin_bringup)/drivers/bms.launch">
+        <arg name="robot" value="$(arg robot)"/>
+    </include>
+    <include file="$(find mojin_bringup)/drivers/joy.launch">
+        <arg name="robot" value="$(arg robot)"/>
+    </include>
+
+    <include file="$(find mojin_bringup)/drivers/light.launch">
+        <arg name="robot" value="$(arg robot)"/>
+        <arg name="component_name" value="light_base"/>
+    </include>
+    <node ns="light_base" pkg="cob_devices_test" type="test_light.py" name="test_light" output="screen"/>
+
+    <include file="$(find mojin_bringup)/tools/diagnostics_aggregator.launch"/>
+    <node pkg="rqt_robot_monitor" type="rqt_robot_monitor" name="rqt_robot_monitor" output="screen"/>
+
+    <!-- start rviz with configuration -->
+    <node pkg="rviz" type="rviz" name="$(anon rviz)" args="-d $(find cob_devices_test)/config/Inbetriebnahme.rviz" respawn="false" output="screen" />
+    
+    <node pkg="tf2_ros" type="static_transform_publisher" name="front_frame" args="0.244, 0.000, 0.209 0.0 0.0 0.0 1.0 /base_link /base_laser_front_link"/>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="left_frame" args="-0.122, 0.211, 0.209 0.000, 0.000, 0.866, 0.500 /base_link /base_laser_left_link"/>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="right_frame" args="-0.122, -0.211, 0.209 0.000, 0.000, -0.866, 0.500 /base_link /base_laser_right_link"/>
+</launch>

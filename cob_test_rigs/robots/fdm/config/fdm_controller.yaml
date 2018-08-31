@@ -13,3 +13,12 @@ joint_group_velocity_controller:
     - test_caster_r_wheel_joint
     - test_caster_rotation_joint
 
+steer_velocity_controller:
+  type: velocity_controllers/JointVelocityController
+  joint: test_caster_rotation_joint
+  required_drive_mode: 3
+
+drive_velocity_controller:
+  type: velocity_controllers/JointVelocityController
+  joint: test_caster_r_wheel_joint
+  required_drive_mode: 3

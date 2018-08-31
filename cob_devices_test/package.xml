@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>cob_devices_test</name>
+  <version>0.0.0</version>
+  <description>The cob_devices_test package</description>
+
+  <maintainer email="hyb@mojin-robotics.de">HannesBachter</maintainer>
+
+  <license>private</license>
+
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <exec_depend>actionlib</exec_depend>
+  <exec_depend>cob_light</exec_depend>
+  <exec_depend>cob_sick_s300</exec_depend>
+  <exec_depend>mojin_bringup</exec_depend>
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>rqt_robot_monitor</exec_depend>
+  <exec_depend>rviz</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+  <exec_depend>usb_cam</exec_depend>
+
+</package>
