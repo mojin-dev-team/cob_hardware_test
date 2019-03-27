@@ -10,8 +10,8 @@ Setup udev rules
 Support Laptop:
 ```
 su robot
-sudo /home/support/git/robot_ws/src/cob_hardware_test/cob_devices_test/scripts/udev_joy.sh
-sudo /home/support/git/robot_ws/src/cob_hardware_test/cob_devices_test/scripts/udev_s300.sh
+sudo /home/robot/git/robot_ws/src/cob_hardware_test/cob_devices_test/scripts/udev_joy.sh
+sudo /home/robot/git/robot_ws/src/cob_hardware_test/cob_devices_test/scripts/udev_s300.sh
 ```
 
 Inbetriebnahmewagen:
